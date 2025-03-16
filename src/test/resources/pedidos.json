@@ -1,0 +1,17 @@
+[
+  {
+    "numeroControle": "54321",
+    "dataCadastro": "2025-03-16",
+    "nome": "Produto A",
+    "valorUnitario": 200.00,
+    "quantidade": 10,
+    "codigoCliente": 1
+  },
+  {
+    "numeroControle": "12345",
+    "nome": "Produto B",
+    "valorUnitario": 150.00,
+    "quantidade": 3,
+    "codigoCliente": 2
+  }
+]
