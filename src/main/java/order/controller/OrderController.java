@@ -5,14 +5,10 @@ import order.dto.OrderDTO;
 import order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.http.HttpStatus;
-
 import java.util.List;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/order")
 public class OrderController {
 
     @Autowired
@@ -43,9 +39,4 @@ public class OrderController {
         orderService.deleteOrder(id);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleInvalidProductIdException(IllegalArgumentException ex) {
-        return ex.getMessage();
-    }
 }
