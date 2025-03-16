@@ -85,54 +85,6 @@ $ docker compose down
 ```
 
 
-## Importação de Arquivos
-
-Exemplo da estrutura dos dados para importação de arquivos:
-
-- XML
-
-```
-<pedidos>
-    <pedido>
-        <numeroControle>54321</numeroControle>
-        <dataCadastro>2025-03-16</dataCadastro>
-        <nome>Produto A</nome>
-        <valorUnitario>200.00</valorUnitario>
-        <quantidade>10</quantidade>
-        <codigoCliente>1</codigoCliente>
-    </pedido>
-    <pedido>
-        <numeroControle>12345</numeroControle>
-        <nome>Produto B</nome>
-        <valorUnitario>150.00</valorUnitario>
-        <quantidade>3</quantidade>
-        <codigoCliente>2</codigoCliente>
-    </pedido>
-</pedidos>
-```
-
-- JSON
-
-```
-[
-    {
-        "numeroControle": "54321",
-        "dataCadastro": "2025-03-16",
-        "nome": "Produto A",
-        "valorUnitario": 200.00,
-        "quantidade": 10,
-        "codigoCliente": 1
-    },
-    {
-        "numeroControle": "12345",
-        "nome": "Produto B",
-        "valorUnitario": 150.00,
-        "quantidade": 3,
-        "codigoCliente": 2
-    }
-]
-```
-
 ## Swagger
 
 Documentação da API RESTful:
