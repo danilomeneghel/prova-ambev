@@ -13,6 +13,7 @@ import order.repository.ProductRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
 
 @Service
 public class OrderService {
@@ -58,7 +59,11 @@ public class OrderService {
         if (optionalOrder.isPresent()) {
             Order order = optionalOrder.get();
             double totalValue = 0;
-            for (Product product : order.getProducts()) {
+            List<Product> products = order.getProducts();
+            if (products == null) {
+                products = new ArrayList<>();
+            }
+            for (Product product : products) {
                 if (product.getId() == null) {
                     productRepository.save(product);
                 } else {
