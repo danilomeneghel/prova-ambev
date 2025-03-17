@@ -57,6 +57,16 @@ public class OrderService {
         Optional<Order> optionalOrder = orderRepository.findById(id);
         if (optionalOrder.isPresent()) {
             Order order = optionalOrder.get();
+            double totalValue = 0;
+            for (Product product : order.getProducts()) {
+                if (product.getId() == null) {
+                    productRepository.save(product);
+                } else {
+                    product = productRepository.findById(product.getId()).orElseThrow(() -> new IllegalArgumentException("Invalid product ID"));
+                }
+                totalValue += product.getPrice();
+            }
+            order.setTotalValue(totalValue);
             modelMapper.map(orderDTO, order);
             order = orderRepository.save(order);
             return modelMapper.map(order, OrderDTO.class);
