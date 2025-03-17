@@ -97,7 +97,7 @@ class OrderServiceTest {
         Long id = 1L;
         OrderDTO orderDTO = new OrderDTO();
         Order order = new Order();
-        order.setProducts(new ArrayList<>()); // Ensure products list is not null
+        order.setProducts(new ArrayList<>()); 
 
         when(orderRepository.findById(id)).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenReturn(order);
