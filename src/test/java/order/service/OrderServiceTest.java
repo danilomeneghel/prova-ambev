@@ -20,9 +20,6 @@ import order.repository.ProductRepository;
 
 class OrderServiceTest {
 
-    @InjectMocks
-    private OrderService orderService;
-
     @Mock
     private OrderRepository orderRepository;
 
@@ -31,6 +28,9 @@ class OrderServiceTest {
 
     @Mock
     private ModelMapper modelMapper;
+
+    @InjectMocks
+    private OrderService orderService;
 
     @BeforeEach
     void setUp() {
