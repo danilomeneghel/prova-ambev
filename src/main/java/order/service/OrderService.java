@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
+import order.dto.ProductCreateDTO;
 import order.entity.Order;
 import order.entity.Product;
 import order.repository.OrderRepository;
@@ -54,25 +55,24 @@ public class OrderService {
         return order.map(value -> modelMapper.map(value, OrderDTO.class)).orElse(null);
     }
 
-    public OrderDTO updateOrder(Long id, OrderDTO orderDTO) {
+    public OrderDTO updateOrder(Long id, OrderCreateDTO orderCreateDTO) {
         Optional<Order> optionalOrder = orderRepository.findById(id);
         if (optionalOrder.isPresent()) {
             Order order = optionalOrder.get();
             double totalValue = 0;
-            List<Product> products = order.getProducts();
-            if (products == null) {
-                products = new ArrayList<>();
-            }
-            for (Product product : products) {
+            List<Product> products = new ArrayList<>();
+            for (ProductCreateDTO productCreateDTO : orderCreateDTO.getProducts()) {
+                Product product = modelMapper.map(productCreateDTO, Product.class);
                 if (product.getId() == null) {
                     productRepository.save(product);
                 } else {
                     product = productRepository.findById(product.getId()).orElseThrow(() -> new IllegalArgumentException("Invalid product ID"));
                 }
+                products.add(product);
                 totalValue += product.getPrice();
             }
+            order.setProducts(products);
             order.setTotalValue(totalValue);
-            modelMapper.map(orderDTO, order);
             order = orderRepository.save(order);
             return modelMapper.map(order, OrderDTO.class);
         }

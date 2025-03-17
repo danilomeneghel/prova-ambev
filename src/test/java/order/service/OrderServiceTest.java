@@ -96,14 +96,16 @@ class OrderServiceTest {
     void testUpdateOrder() {
         Long id = 1L;
         OrderDTO orderDTO = new OrderDTO();
+        OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
+        orderCreateDTO.setProducts(new ArrayList<>()); 
         Order order = new Order();
-        order.setProducts(new ArrayList<>()); 
+        order.setProducts(new ArrayList<>());
 
         when(orderRepository.findById(id)).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenReturn(order);
         when(modelMapper.map(order, OrderDTO.class)).thenReturn(orderDTO);
 
-        OrderDTO result = orderService.updateOrder(id, orderDTO);
+        OrderDTO result = orderService.updateOrder(id, orderCreateDTO);
 
         assertNotNull(result);
         verify(orderRepository, times(1)).findById(id);

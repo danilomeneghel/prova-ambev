@@ -66,7 +66,7 @@ public class OrderControllerTest {
     public void testUpdateOrder() throws Exception {
         OrderDTO order = new OrderDTO();
         order.setId(1L);
-        when(orderService.updateOrder(eq(1L), any(OrderDTO.class))).thenReturn(order);
+        when(orderService.updateOrder(eq(1L), any(OrderCreateDTO.class))).thenReturn(order);
 
         mockMvc.perform(put("/order/1")
                 .contentType("application/json")
