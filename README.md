@@ -100,6 +100,23 @@ Para realizar os testes, execute o seguinte comando no terminal:
 $ mvn test
 ```
 
+## Screenshots
+
+Swagger-UI <br>
+![Screenshots](screenshots/screenshot01.png) <br><br>
+
+Modelagem ER <br>
+![Screenshots](screenshots/screenshot02.png) <br><br>
+
+Banco de Dados <br>
+![Screenshots](screenshots/screenshot03.png) <br><br>
+![Screenshots](screenshots/screenshot04.png) <br><br>
+![Screenshots](screenshots/screenshot05.png) <br><br>
+
+Testes Unitários <br>
+![Screenshots](screenshots/screenshot06.png) <br><br>
+
+
 ## Licença
 
 Projeto licenciado sob <a href="LICENSE">The MIT License (MIT)</a>.<br><br>
