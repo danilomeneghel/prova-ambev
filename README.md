@@ -57,7 +57,7 @@ Aguarde carregar todo o serviço web. <br>
 Após concluído, digite o endereço abaixo em seu navegador, nele será listado os pedidos
 cadastrados na API. <br>
 
-http://localhost:8080/api/pedidos
+http://localhost:8080/order
 
 
 ## Docker (Opcional)
