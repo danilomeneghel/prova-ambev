@@ -4,7 +4,9 @@ import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
 import order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 import java.util.List;
 
 @RestController
@@ -15,13 +17,15 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping
-    public OrderDTO createOrder(@RequestBody OrderCreateDTO orderCreateDTO) {
-        return orderService.createOrder(orderCreateDTO);
+    public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderCreateDTO orderCreateDTO) {
+        OrderDTO createdOrder = orderService.createOrder(orderCreateDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 
     @GetMapping("/{id}")
-    public OrderDTO getOrderById(@PathVariable Long id) {
-        return orderService.getOrderById(id);
+    public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
+        OrderDTO order = orderService.getOrderById(id);
+        return ResponseEntity.ok(order);
     }
 
     @GetMapping
@@ -30,13 +34,15 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
-    public OrderDTO updateOrder(@PathVariable Long id, @RequestBody OrderDTO orderDTO) {
-        return orderService.updateOrder(id, orderDTO);
+    public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody OrderDTO orderDTO) {
+        OrderDTO updatedOrder = orderService.updateOrder(id, orderDTO);
+        return ResponseEntity.ok(updatedOrder);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteOrder(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
