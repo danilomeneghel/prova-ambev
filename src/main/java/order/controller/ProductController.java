@@ -38,12 +38,14 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         ProductDTO product = productService.getProductById(id);
+        productConsumer.consume("Fetching product by id: " + id);
         return ResponseEntity.status(HttpStatus.OK).body(product);
     }
 
     @GetMapping("/filter")
     public ResponseEntity<List<ProductCreateDTO>> filterProducts(@Valid @ModelAttribute ProductCreateDTO productCreateDTO) {
         List<ProductCreateDTO> filterProducts = productService.filterProducts(productCreateDTO);
+        productConsumer.consume("Filtering products");
         return ResponseEntity.status(HttpStatus.OK).body(filterProducts);
     }
 

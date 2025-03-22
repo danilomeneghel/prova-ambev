@@ -37,12 +37,14 @@ public class OrderController {
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
         OrderDTO order = orderService.getOrderById(id);
+        orderConsumer.consume("Fetching order by id: " + id);
         return ResponseEntity.status(HttpStatus.OK).body(order);
     }
 
     @GetMapping("/filter")
     public ResponseEntity<List<OrderCreateDTO>> filterOrders(@Valid @ModelAttribute OrderCreateDTO orderCreateDTO) {
         List<OrderCreateDTO> filterOrders = orderService.filterOrders(orderCreateDTO);
+        orderConsumer.consume("Filtering orders");
         return ResponseEntity.status(HttpStatus.OK).body(filterOrders);
     }
 
