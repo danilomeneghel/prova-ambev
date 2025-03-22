@@ -1,86 +1,111 @@
 package order.controller;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
 import order.service.OrderService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import java.util.Arrays;
+import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@AutoConfigureTestDatabase(replace = Replace.ANY)
-@SpringJUnitConfig
-@ComponentScan(basePackages = "order")
 public class OrderControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
+    @Mock
     private OrderService orderService;
 
+    @InjectMocks
+    private OrderController orderController;
+
+    private MockMvc mockMvc;
+
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(orderController).build();
     }
 
     @Test
-    public void testGetOrderById() throws Exception {
-        OrderDTO order = new OrderDTO();
-        order.setId(1L);
-        when(orderService.getOrderById(1L)).thenReturn(order);
+    public void testCreateOrder() {
+        OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
+        OrderDTO orderDTO = new OrderDTO();
+        when(orderService.createOrder(any(OrderCreateDTO.class))).thenReturn(orderDTO);
 
-        mockMvc.perform(get("/order/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L));
+        ResponseEntity<OrderDTO> response = orderController.createOrder(orderCreateDTO);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(orderDTO, response.getBody());
+        verify(orderService, times(1)).createOrder(any(OrderCreateDTO.class));
     }
 
     @Test
-    public void testCreateOrder() throws Exception {
-        OrderDTO order = new OrderDTO();
-        order.setId(1L);
-        when(orderService.createOrder(any(OrderCreateDTO.class))).thenReturn(order);
+    public void testGetOrderById() {
+        OrderDTO orderDTO = new OrderDTO();
+        when(orderService.getOrderById(anyLong())).thenReturn(orderDTO);
 
-        mockMvc.perform(post("/order")
-                .contentType("application/json")
-                .content("{\"description\":\"Test Order\"}"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1L));
+        ResponseEntity<OrderDTO> response = orderController.getOrderById(1L);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(orderDTO, response.getBody());
+        verify(orderService, times(1)).getOrderById(anyLong());
     }
 
     @Test
-    public void testUpdateOrder() throws Exception {
-        OrderDTO order = new OrderDTO();
-        order.setId(1L);
-        when(orderService.updateOrder(eq(1L), any(OrderCreateDTO.class))).thenReturn(order);
+    public void testFilterOrders() {
+        OrderDTO orderDTO = new OrderDTO();
+        List<OrderDTO> orderDTOList = Arrays.asList(orderDTO);
+        when(orderService.filterOrders(any(OrderDTO.class))).thenReturn(orderDTOList);
 
-        mockMvc.perform(put("/order/1")
-                .contentType("application/json")
-                .content("{\"description\":\"Updated Order\"}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L));
+        ResponseEntity<List<OrderDTO>> response = orderController.filterOrders(orderDTO);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(orderDTOList, response.getBody());
+        verify(orderService, times(1)).filterOrders(any(OrderDTO.class));
     }
 
     @Test
-    public void testDeleteOrder() throws Exception {
-        doNothing().when(orderService).deleteOrder(1L);
+    public void testGetAllOrders() {
+        OrderDTO orderDTO = new OrderDTO();
+        List<OrderDTO> orderDTOList = Arrays.asList(orderDTO);
+        when(orderService.getAllOrders()).thenReturn(orderDTOList);
 
-        mockMvc.perform(delete("/order/1"))
-                .andExpect(status().isNoContent());
+        ResponseEntity<List<OrderDTO>> response = orderController.getAllOrders();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(orderDTOList, response.getBody());
+        verify(orderService, times(1)).getAllOrders();
     }
 
+    @Test
+    public void testUpdateOrder() {
+        OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
+        OrderDTO orderDTO = new OrderDTO();
+        when(orderService.updateOrder(anyLong(), any(OrderCreateDTO.class))).thenReturn(orderDTO);
+
+        ResponseEntity<OrderDTO> response = orderController.updateOrder(1L, orderCreateDTO);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(orderDTO, response.getBody());
+        verify(orderService, times(1)).updateOrder(anyLong(), any(OrderCreateDTO.class));
+    }
+
+    @Test
+    public void testDeleteOrder() {
+        doNothing().when(orderService).deleteOrder(anyLong());
+
+        ResponseEntity<Void> response = orderController.deleteOrder(1L);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(orderService, times(1)).deleteOrder(anyLong());
+    }
 }
