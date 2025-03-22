@@ -1,5 +1,6 @@
 package order.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.Data;
@@ -8,8 +9,15 @@ import lombok.Data;
 public class OrderDTO {
 
     private Long id;
-
-    private List<ProductDTO> products;
     
+    private Long orderNumber;
+
     private Double totalValue;
+    
+    private LocalDateTime dateTime;
+
+    private String status;
+    
+    private List<ProductDTO> products;
+
 }

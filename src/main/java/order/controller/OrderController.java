@@ -3,6 +3,7 @@ package order.controller;
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
 import order.service.OrderService;
+import entity.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,18 +26,25 @@ public class OrderController {
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
         OrderDTO order = orderService.getOrderById(id);
-        return ResponseEntity.ok(order);
+        return ResponseEntity.status(HttpStatus.OK).body(order);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<OrderDTO>> filterOrders(@RequestBody OrderDTO orderDTO) {
+        List<OrderDTO> filterOrders = orderService.filterOrders(orderDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(filterOrders);
     }
 
     @GetMapping
-    public List<OrderDTO> getAllOrders() {
-        return orderService.getAllOrders();
+    public ResponseEntity<List<OrderDTO>> getAllOrders() {
+        List<OrderDTO> orders = orderService.getAllOrders();
+        return ResponseEntity.status(HttpStatus.OK).body(orders);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody OrderCreateDTO orderCreateDTO) {
         OrderDTO updatedOrder = orderService.updateOrder(id, orderCreateDTO);
-        return ResponseEntity.ok(updatedOrder);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedOrder);
     }
 
     @DeleteMapping("/{id}")

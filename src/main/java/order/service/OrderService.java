@@ -55,6 +55,10 @@ public class OrderService {
         return order.map(value -> modelMapper.map(value, OrderDTO.class)).orElse(null);
     }
 
+    public List<OrderDTO> filterOrders(OrderDTO orderDTO) {
+        return orderRepository.findByCriteria(orderDTO);
+    }
+
     public OrderDTO updateOrder(Long id, OrderCreateDTO orderCreateDTO) {
         Optional<Order> optionalOrder = orderRepository.findById(id);
         if (optionalOrder.isPresent()) {
