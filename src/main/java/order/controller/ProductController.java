@@ -27,9 +27,9 @@ public class ProductController {
     private Consumer consumer;
 
     @Autowired
-    public ProductController(@Value("${kafka.bootstrap-servers}") String bootstrapServers,
-                             @Value("${kafka.product-topic}") String productTopic,
-                             @Value("${kafka.product-group}") String productGroup) {
+    public ProductController(@Value("${spring.kafka.bootstrap-servers}") String bootstrapServers,
+                             @Value("${spring.kafka.topic.product}") String productTopic,
+                             @Value("${spring.kafka.group.product}") String productGroup) {
         this.producer = new Producer(bootstrapServers, productTopic);
         this.consumer = new Consumer(bootstrapServers, productGroup, productTopic);
     }
