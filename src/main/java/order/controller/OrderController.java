@@ -3,10 +3,9 @@ package order.controller;
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
 import order.service.OrderService;
-import order.message.Producer;
-import order.message.Consumer;
+import order.message.OrderProducer;
+import order.message.OrderConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,21 +21,16 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    private Producer producer;
-    private Consumer consumer;
+    @Autowired
+    private OrderProducer orderProducer;
 
     @Autowired
-    public OrderController(@Value("${spring.kafka.bootstrap-servers}") String bootstrapServers,
-                           @Value("${spring.kafka.topic.order}") String orderTopic,
-                           @Value("${spring.kafka.group.order}") String orderGroup) {
-        this.producer = new Producer(bootstrapServers, orderTopic);
-        this.consumer = new Consumer(bootstrapServers, orderGroup, orderTopic);
-    }
+    private OrderConsumer orderConsumer;
 
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderCreateDTO orderCreateDTO) {
+        orderProducer.sendMessage(orderCreateDTO.toString());
         OrderDTO createdOrder = orderService.createOrder(orderCreateDTO);
-        producer.sendMessage("Order created", createdOrder.getId().toString());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 
@@ -49,16 +43,13 @@ public class OrderController {
     @GetMapping("/filter")
     public ResponseEntity<List<OrderCreateDTO>> filterOrders(@Valid @ModelAttribute OrderCreateDTO orderCreateDTO) {
         List<OrderCreateDTO> filterOrders = orderService.filterOrders(orderCreateDTO);
-        producer.sendMessage("filterOrders", orderCreateDTO.toString());
-        consumer.consumeMessages();
         return ResponseEntity.status(HttpStatus.OK).body(filterOrders);
     }
 
     @GetMapping
     public ResponseEntity<List<OrderDTO>> getAllOrders() {
         List<OrderDTO> orders = orderService.getAllOrders();
-        producer.sendMessage("getAllOrders", "Request to get all orders");
-        consumer.consumeMessages();
+        orderConsumer.consume("Fetching all orders");
         return ResponseEntity.status(HttpStatus.OK).body(orders);
     }
 

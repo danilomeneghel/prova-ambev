@@ -6,7 +6,7 @@ services:
       - "2181:2181"
 
   kafka:
-    container_name: kafka_ambev
+    container_name: kafka
     image: wurstmeister/kafka:2.13-2.7.0
     ports:
       - "9092:9092"
