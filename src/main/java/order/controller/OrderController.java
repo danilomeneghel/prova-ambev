@@ -3,7 +3,6 @@ package order.controller;
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
 import order.service.OrderService;
-import entity.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
