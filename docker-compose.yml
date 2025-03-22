@@ -1,5 +1,23 @@
-version: '3'
+version: '3.8'
 services:
+  zookeeper:
+    image: wurstmeister/zookeeper:3.4.6
+    ports:
+      - "2181:2181"
+
+  kafka:
+    container_name: kafka_ambev
+    image: wurstmeister/kafka:2.13-2.7.0
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+
   mysql:
     container_name: mysql_ambev
     image: mysql:8.4.2
@@ -25,12 +43,19 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/prova_ambev
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_ORDER_TOPIC: order-topic
+      KAFKA_ORDER_GROUP: order-group
+      KAFKA_PRODUCT_TOPIC: product-topic
+      KAFKA_PRODUCT_GROUP: product-group
     volumes:
       - ../:/spring-boot-api
     networks:
       - app-network
     depends_on:
       - mysql
+      - kafka
 
 volumes:
   mysql-data:
