@@ -1,6 +1,6 @@
 package order.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import lombok.Data;
@@ -14,7 +14,7 @@ public class OrderDTO {
 
     private Double totalValue;
     
-    private LocalDateTime dateTime;
+    private LocalDate date;
 
     private String status;
     

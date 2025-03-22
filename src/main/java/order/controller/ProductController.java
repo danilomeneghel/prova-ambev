@@ -1,11 +1,15 @@
 package order.controller;
 
+import order.dto.OrderCreateDTO;
 import order.dto.ProductCreateDTO;
 import order.dto.ProductDTO;
 import order.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
@@ -27,6 +31,12 @@ public class ProductController {
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         ProductDTO product = productService.getProductById(id);
         return ResponseEntity.status(HttpStatus.OK).body(product);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<ProductCreateDTO>> filterProducts(@Valid @ModelAttribute ProductCreateDTO productCreateDTO) {
+        List<ProductCreateDTO> filterProducts = productService.filterProducts(productCreateDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(filterProducts);
     }
 
     @GetMapping

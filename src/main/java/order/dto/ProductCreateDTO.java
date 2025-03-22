@@ -5,8 +5,10 @@ import lombok.Data;
 @Data
 public class ProductCreateDTO {
 
-    private String name;
+    private Long productNumber;
     
+    private String name;
+        
     private Double price;
 
 }

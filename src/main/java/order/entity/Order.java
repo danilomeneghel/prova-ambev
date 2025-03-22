@@ -3,7 +3,7 @@ package order.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -19,7 +19,7 @@ public class Order {
     
     private Double totalValue;
 
-    private LocalDateTime dateTime;
+    private LocalDate date;
     
     private String status;
 

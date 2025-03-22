@@ -28,6 +28,11 @@ public class ProductService {
         return modelMapper.map(productRepository.findById(id).orElse(null), ProductDTO.class);
     }
 
+    public List<ProductCreateDTO> filterProducts(ProductCreateDTO productCreateDTO) {
+        List<Product> products = productRepository.findByCriteria(productCreateDTO);
+        return products.stream().map(product -> modelMapper.map(product, ProductCreateDTO.class)).toList();
+    }
+
     public List<ProductDTO> getAllProducts() {
         return productRepository.findAll().stream()
                 .map(product -> modelMapper.map(product, ProductDTO.class))

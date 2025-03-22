@@ -6,6 +6,9 @@ import order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import java.util.List;
 
@@ -29,8 +32,8 @@ public class OrderController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<OrderDTO>> filterOrders(@RequestBody OrderDTO orderDTO) {
-        List<OrderDTO> filterOrders = orderService.filterOrders(orderDTO);
+    public ResponseEntity<List<OrderCreateDTO>> filterOrders(@Valid @ModelAttribute OrderCreateDTO orderCreateDTO) {
+        List<OrderCreateDTO> filterOrders = orderService.filterOrders(orderCreateDTO);
         return ResponseEntity.status(HttpStatus.OK).body(filterOrders);
     }
 

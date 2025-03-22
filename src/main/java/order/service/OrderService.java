@@ -55,8 +55,9 @@ public class OrderService {
         return order.map(value -> modelMapper.map(value, OrderDTO.class)).orElse(null);
     }
 
-    public List<OrderDTO> filterOrders(OrderDTO orderDTO) {
-        return orderRepository.findByCriteria(orderDTO);
+    public List<OrderCreateDTO> filterOrders(OrderCreateDTO orderCreateDTO) {
+        List<Order> orders = orderRepository.findByCriteria(orderCreateDTO);
+        return orders.stream().map(order -> modelMapper.map(order, OrderCreateDTO.class)).toList();
     }
 
     public OrderDTO updateOrder(Long id, OrderCreateDTO orderCreateDTO) {
