@@ -25,9 +25,6 @@ public class ProductController {
     @Autowired
     private ProductProducer productProducer;
 
-    @Autowired
-    private ProductConsumer productConsumer;
-
     @PostMapping
     public ResponseEntity<Object> createProduct(@RequestBody ProductCreateDTO productCreateDTO) {
         if (productService.isProductNumberExists(productCreateDTO.getProductNumber())) {
@@ -35,28 +32,24 @@ public class ProductController {
         }
 
         productProducer.sendMessage(productCreateDTO.toString());
-        ProductDTO createdProduct = productService.createProduct(productCreateDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productCreateDTO);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         ProductDTO product = productService.getProductById(id);
-        productConsumer.consume("Fetching product by id: " + id);
         return ResponseEntity.status(HttpStatus.OK).body(product);
     }
 
     @GetMapping("/filter")
     public ResponseEntity<List<ProductCreateDTO>> filterProducts(@Valid @ModelAttribute ProductCreateDTO productCreateDTO) {
         List<ProductCreateDTO> filterProducts = productService.filterProducts(productCreateDTO);
-        productConsumer.consume("Filtering products");
         return ResponseEntity.status(HttpStatus.OK).body(filterProducts);
     }
 
     @GetMapping
     public ResponseEntity<List<ProductDTO>> getAllProducts() {
         List<ProductDTO> products = productService.getAllProducts();
-        productConsumer.consume("Fetching all products");
         return ResponseEntity.status(HttpStatus.OK).body(products);
     }
 
@@ -71,4 +64,5 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
+
 }

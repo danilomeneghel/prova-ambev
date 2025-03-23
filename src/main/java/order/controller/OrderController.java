@@ -25,9 +25,6 @@ public class OrderController {
     @Autowired
     private OrderProducer orderProducer;
 
-    @Autowired
-    private OrderConsumer orderConsumer;
-
     @PostMapping
     public ResponseEntity<Object> createOrder(@Valid @RequestBody OrderCreateDTO orderCreateDTO) {
         if (orderService.isOrderNumberExists(orderCreateDTO.getOrderNumber())) {
@@ -35,28 +32,24 @@ public class OrderController {
         }
 
         orderProducer.sendMessage(orderCreateDTO.toString());
-        OrderDTO createdOrder = orderService.createOrder(orderCreateDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderCreateDTO);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
         OrderDTO order = orderService.getOrderById(id);
-        orderConsumer.consume("Fetching order by id: " + id);
         return ResponseEntity.status(HttpStatus.OK).body(order);
     }
 
     @GetMapping("/filter")
     public ResponseEntity<List<OrderFilterDTO>> filterOrders(@Valid @ModelAttribute OrderFilterDTO orderFilterDTO) {
         List<OrderFilterDTO> filterOrders = orderService.filterOrders(orderFilterDTO);
-        orderConsumer.consume("Filtering orders");
         return ResponseEntity.status(HttpStatus.OK).body(filterOrders);
     }
 
     @GetMapping
     public ResponseEntity<List<OrderDTO>> getAllOrders() {
         List<OrderDTO> orders = orderService.getAllOrders();
-        orderConsumer.consume("Fetching all orders");
         return ResponseEntity.status(HttpStatus.OK).body(orders);
     }
 
