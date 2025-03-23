@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
@@ -30,22 +31,27 @@ public class OrderService {
 
     private ModelMapper modelMapper = new ModelMapper();
 
+    @Transactional
     public OrderDTO createOrder(OrderCreateDTO orderCreateDTO) {
         Order order = modelMapper.map(orderCreateDTO, Order.class);
         double totalValue = 0;
-        for (Product product : order.getProducts()) {
+        List<Product> products = new ArrayList<>();
+        for (ProductCreateDTO productCreateDTO : orderCreateDTO.getProducts()) {
+            Product product = modelMapper.map(productCreateDTO, Product.class);
             if (product.getId() == null) {
-                productRepository.save(product);
+                product = productRepository.save(product);
             } else {
                 product = productRepository.findById(product.getId()).orElseThrow(() -> new IllegalArgumentException("Invalid product ID"));
             }
+            products.add(product);
             totalValue += product.getPrice();
         }
+        order.setProducts(products);
         order.setTotalValue(totalValue);
         order = orderRepository.save(order);
         return modelMapper.map(order, OrderDTO.class);
     }
-    
+
     public OrderDTO getOrderById(Long id) {
         Optional<Order> order = orderRepository.findById(id);
         return order.map(value -> modelMapper.map(value, OrderDTO.class)).orElse(null);
@@ -59,10 +65,11 @@ public class OrderService {
     @Cacheable("apiCache")
     public List<OrderDTO> getAllOrders() {
         return orderRepository.findAll().stream()
-                     .map(order -> modelMapper.map(order, OrderDTO.class))
-                     .collect(Collectors.toList());
+                .map(order -> modelMapper.map(order, OrderDTO.class))
+                .collect(Collectors.toList());
     }
 
+    @Transactional
     public OrderDTO updateOrder(Long id, OrderCreateDTO orderCreateDTO) {
         Optional<Order> optionalOrder = orderRepository.findById(id);
         if (optionalOrder.isPresent()) {
@@ -72,7 +79,7 @@ public class OrderService {
             for (ProductCreateDTO productCreateDTO : orderCreateDTO.getProducts()) {
                 Product product = modelMapper.map(productCreateDTO, Product.class);
                 if (product.getId() == null) {
-                    productRepository.save(product);
+                    product = productRepository.save(product);
                 } else {
                     product = productRepository.findById(product.getId()).orElseThrow(() -> new IllegalArgumentException("Invalid product ID"));
                 }
@@ -94,5 +101,5 @@ public class OrderService {
     public boolean isOrderNumberExists(Long orderNumber) {
         return orderRepository.existsByOrderNumber(orderNumber);
     }
-    
+
 }
