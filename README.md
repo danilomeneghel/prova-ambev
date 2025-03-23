@@ -2,6 +2,7 @@
 
 Avaliação técnica de uma API de Cadastro de Pedidos, desenvolvido em Java com Spring-Boot.
 
+
 ## Características
 
 - API RESTful
@@ -9,6 +10,7 @@ Avaliação técnica de uma API de Cadastro de Pedidos, desenvolvido em Java com
 - Cache
 - MessageQueue
 - MockMVC
+
 
 ## Requisitos
 
@@ -18,6 +20,7 @@ Avaliação técnica de uma API de Cadastro de Pedidos, desenvolvido em Java com
 - Zookeeper 3.8.0
 - Kafka 3.3.2
 - Docker (Opcional)
+
 
 ## Tecnologias
 
@@ -34,6 +37,7 @@ Avaliação técnica de uma API de Cadastro de Pedidos, desenvolvido em Java com
 - Kafka
 - Docker
 
+
 ## Instalação
 
 ```
@@ -42,6 +46,7 @@ $ git clone https://github.com/danilomeneghel/prova-ambev.git
 $ cd prova-ambev
 ```
 
+
 ## MySql
 
 Abra seu MySql e crie a base de dados:
@@ -49,7 +54,7 @@ Abra seu MySql e crie a base de dados:
 prova_ambev
 
 
-## Maven
+## Kafka
 
 Primeiro rode o Kafka.<br>
 Caso não tenha o Kafka instalado, execute o seguinte comando via Docker:
@@ -60,6 +65,9 @@ $ docker run -d --name zookeeper-server --network app-tier -e ALLOW_ANONYMOUS_LO
 $ docker run -d --name kafka-server --network app-tier -e ALLOW_PLAINTEXT_LISTENER=yes -e KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-server:2181 bitnami/kafka:3.3.2
 $ docker run -it --rm --network app-tier -e KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-server:2181 bitnami/kafka:3.3.2 kafka-topics.sh --list  --bootstrap-server kafka-server:9092
 ```
+
+
+## Maven
 
 Para carregar o projeto, digite no terminal:
 
@@ -113,6 +121,31 @@ Para realizar os testes, execute o seguinte comando no terminal:
 ```
 $ mvn test
 ```
+
+
+## Uso da Messageria Kafka
+
+Ao utilizar o Apache Kafka para lidar com alta disponibilidade e alto volume de dados, a melhor opção geralmente é priorizar o envio dos dados para o Kafka antes de persistir no banco de dados. Essa abordagem aproveita as características do Kafka para garantir a resiliência e a escalabilidade do sistema.<br> 
+
+Vantagens de Enviar para o Kafka Primeiro:<br> 
+
+- Alta Disponibilidade e Tolerância a Falhas<br>
+O Kafka é projetado para ser altamente distribuído e tolerante a falhas.<br> 
+Ao replicar dados entre brokers, ele garante que os dados não sejam perdidos, mesmo se um ou mais brokers falharem.<br>
+Isso é crucial em cenários de alto volume, onde a perda de dados pode ter impactos significativos.<br>
+
+- Escalabilidade<br>
+O Kafka permite escalar horizontalmente, adicionando mais brokers ao cluster conforme necessário.<br> 
+Isso o torna ideal para lidar com volumes crescentes de dados.<br>
+Essa escalabilidade garante que o sistema possa manter o desempenho mesmo sob cargas pesadas.<br>
+
+- Desacoplamento e Processamento Assíncrono<br>
+O Kafka desacopla os produtores de dados dos consumidores, permitindo que os dados sejam processados de forma assíncrona.<br>
+Isso melhora o desempenho geral do sistema, pois os produtores não precisam esperar que os dados sejam persistidos no banco de dados antes de continuar.<br>
+
+- Retenção de Dados<br>
+O Kafka armazena os dados por um período configurável, permitindo que os consumidores processem os dados em seu próprio ritmo e até mesmo reprocessem os dados se necessário.
+
 
 ## Screenshots
 
