@@ -16,10 +16,13 @@ public class OrderConsumer {
 
     @KafkaListener(topics = "${kafka.topic.orders}", groupId = "${kafka.group.order-consumers}", containerFactory = "orderKafkaListenerContainerFactory")
     public void consume(ConsumerRecord<String, OrderCreateDTO> record) {
-        OrderCreateDTO orderCreateDTO = record.value();
-        System.out.println("Mensagem recebida do Kafka: " + orderCreateDTO);
-
-        orderService.createOrder(orderCreateDTO);
+        try {
+            OrderCreateDTO orderCreateDTO = record.value();
+            System.out.println("Consumed order message: " + orderCreateDTO);
+            orderService.createOrder(orderCreateDTO);
+        } catch (ClassCastException e) {
+            System.err.println("Failed to cast message to OrderCreateDTO: " + e.getMessage());
+        }
     }
     
 }

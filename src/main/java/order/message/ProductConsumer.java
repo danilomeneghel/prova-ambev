@@ -16,10 +16,13 @@ public class ProductConsumer {
 
     @KafkaListener(topics = "${kafka.topic.products}", groupId = "${kafka.group.product-consumers}")
     public void consume(ConsumerRecord<String, ProductCreateDTO> record) {
-        ProductCreateDTO productCreateDTO = record.value();
-        System.out.println("Mensagem recebida do Kafka: " + productCreateDTO);
-
-        productService.createProduct(productCreateDTO);
+        try {
+            ProductCreateDTO productCreateDTO = record.value();
+            System.out.println("Consumed product message: " + productCreateDTO);
+            productService.createProduct(productCreateDTO);
+        } catch (ClassCastException e) {
+            System.err.println("Failed to cast message to ProductCreateDTO: " + e.getMessage());
+        }
     }
 
 }
