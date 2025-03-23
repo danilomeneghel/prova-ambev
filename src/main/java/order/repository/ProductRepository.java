@@ -18,4 +18,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
            "(:#{#productCreateDTO.name} IS NULL OR o.name = :#{#productCreateDTO.name}) AND " +
            "(:#{#productCreateDTO.price} IS NULL OR o.price = :#{#productCreateDTO.price})")
     List<Product> findByCriteria(@Param("productCreateDTO") ProductCreateDTO productCreateDTO);
+
+    boolean existsByProductNumber(Long productNumber);
+    
 }

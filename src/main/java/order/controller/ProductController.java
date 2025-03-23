@@ -29,9 +29,17 @@ public class ProductController {
     private ProductConsumer productConsumer;
 
     @PostMapping
-    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductCreateDTO productCreateDTO) {
+    public ResponseEntity<Object> createProduct(@RequestBody ProductCreateDTO productCreateDTO) {
+        if (productCreateDTO == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product fields cannot be empty");
+        }
+
+        if (productService.isProductNumberExists(productCreateDTO.getProductNumber())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Product Number already exists");
+        }
+
+        productProducer.sendMessage(productCreateDTO.toString());
         ProductDTO createdProduct = productService.createProduct(productCreateDTO);
-        productProducer.sendMessage(createdProduct.toString());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 

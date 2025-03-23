@@ -2,6 +2,7 @@ package order.controller;
 
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
+import order.dto.OrderFilterDTO;
 import order.service.OrderService;
 import order.message.OrderProducer;
 import order.message.OrderConsumer;
@@ -28,7 +29,15 @@ public class OrderController {
     private OrderConsumer orderConsumer;
 
     @PostMapping
-    public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderCreateDTO orderCreateDTO) {
+    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderCreateDTO orderCreateDTO) {
+        if (orderCreateDTO == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order fields cannot be empty");
+        }
+
+        if (orderService.isOrderNumberExists(orderCreateDTO.getOrderNumber())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Order Number already exists");
+        }
+
         orderProducer.sendMessage(orderCreateDTO.toString());
         OrderDTO createdOrder = orderService.createOrder(orderCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
@@ -42,8 +51,8 @@ public class OrderController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<OrderCreateDTO>> filterOrders(@Valid @ModelAttribute OrderCreateDTO orderCreateDTO) {
-        List<OrderCreateDTO> filterOrders = orderService.filterOrders(orderCreateDTO);
+    public ResponseEntity<List<OrderFilterDTO>> filterOrders(@Valid @ModelAttribute OrderFilterDTO orderFilterDTO) {
+        List<OrderFilterDTO> filterOrders = orderService.filterOrders(orderFilterDTO);
         orderConsumer.consume("Filtering orders");
         return ResponseEntity.status(HttpStatus.OK).body(filterOrders);
     }

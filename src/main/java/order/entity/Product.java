@@ -1,6 +1,7 @@
 package order.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Entity
@@ -12,10 +13,16 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Product Number cannot be null")
+    @Column(nullable = false, unique = true)
     private Long productNumber;
 
+    @NotNull(message = "Name cannot be null")
+    @Column(nullable = false)
     private String name;
     
+    @NotNull(message = "Price cannot be null")
+    @Column(nullable = false)
     private Double price;
 
 }

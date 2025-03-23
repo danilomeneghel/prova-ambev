@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
+import order.dto.OrderFilterDTO;
 import order.dto.ProductCreateDTO;
 import order.entity.Order;
 import order.entity.Product;
@@ -48,9 +49,9 @@ public class OrderService {
         return order.map(value -> modelMapper.map(value, OrderDTO.class)).orElse(null);
     }
 
-    public List<OrderCreateDTO> filterOrders(OrderCreateDTO orderCreateDTO) {
-        List<Order> orders = orderRepository.findByCriteria(orderCreateDTO);
-        return orders.stream().map(order -> modelMapper.map(order, OrderCreateDTO.class)).toList();
+    public List<OrderFilterDTO> filterOrders(OrderFilterDTO orderFilterDTO) {
+        List<Order> orders = orderRepository.findByCriteria(orderFilterDTO);
+        return orders.stream().map(order -> modelMapper.map(order, OrderFilterDTO.class)).toList();
     }
 
     public List<OrderDTO> getAllOrders() {
@@ -88,4 +89,8 @@ public class OrderService {
         orderRepository.deleteById(id);
     }
 
+    public boolean isOrderNumberExists(Long orderNumber) {
+        return orderRepository.existsByOrderNumber(orderNumber);
+    }
+    
 }
