@@ -29,11 +29,7 @@ public class OrderController {
     private OrderConsumer orderConsumer;
 
     @PostMapping
-    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderCreateDTO orderCreateDTO) {
-        if (orderCreateDTO == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order fields cannot be empty");
-        }
-
+    public ResponseEntity<Object> createOrder(@Valid @RequestBody OrderCreateDTO orderCreateDTO) {
         if (orderService.isOrderNumberExists(orderCreateDTO.getOrderNumber())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Order Number already exists");
         }

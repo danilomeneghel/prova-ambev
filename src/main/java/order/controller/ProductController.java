@@ -30,10 +30,6 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<Object> createProduct(@RequestBody ProductCreateDTO productCreateDTO) {
-        if (productCreateDTO == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product fields cannot be empty");
-        }
-
         if (productService.isProductNumberExists(productCreateDTO.getProductNumber())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Product Number already exists");
         }
