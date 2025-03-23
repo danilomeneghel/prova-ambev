@@ -5,7 +5,6 @@ import order.dto.OrderDTO;
 import order.dto.OrderFilterDTO;
 import order.service.OrderService;
 import order.message.OrderProducer;
-import order.message.OrderConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

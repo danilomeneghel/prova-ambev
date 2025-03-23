@@ -4,7 +4,6 @@ import order.dto.ProductCreateDTO;
 import order.dto.ProductDTO;
 import order.service.ProductService;
 import order.message.ProductProducer;
-import order.message.ProductConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
