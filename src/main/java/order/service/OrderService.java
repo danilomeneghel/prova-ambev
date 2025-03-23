@@ -2,7 +2,6 @@ package order.service;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import order.dto.OrderCreateDTO;
@@ -44,19 +43,16 @@ public class OrderService {
         return modelMapper.map(order, OrderDTO.class);
     }
     
-    @Cacheable("apiCache")
     public OrderDTO getOrderById(Long id) {
         Optional<Order> order = orderRepository.findById(id);
         return order.map(value -> modelMapper.map(value, OrderDTO.class)).orElse(null);
     }
 
-    @Cacheable("apiCache")
     public List<OrderCreateDTO> filterOrders(OrderCreateDTO orderCreateDTO) {
         List<Order> orders = orderRepository.findByCriteria(orderCreateDTO);
         return orders.stream().map(order -> modelMapper.map(order, OrderCreateDTO.class)).toList();
     }
 
-    @Cacheable("apiCache")
     public List<OrderDTO> getAllOrders() {
         List<Order> orders = orderRepository.findAll();
         return orders.stream()
