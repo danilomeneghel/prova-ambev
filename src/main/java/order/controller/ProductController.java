@@ -1,18 +1,17 @@
 package order.controller;
 
-import order.dto.ProductCreateDTO;
-import order.dto.ProductDTO;
-import order.service.ProductService;
-import order.message.ProductProducer;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
-
-import org.springframework.http.HttpStatus;
-
-import java.util.List;
+import order.dto.ProductCreateDTO;
+import order.dto.ProductDTO;
+import order.message.ProductProducer;
+import order.service.ProductService;
 
 @RestController
 @RequestMapping("/product")
@@ -25,12 +24,12 @@ public class ProductController {
     private ProductProducer productProducer;
 
     @PostMapping
-    public ResponseEntity<Object> createProduct(@RequestBody ProductCreateDTO productCreateDTO) {
+    public ResponseEntity<Object> createProduct(@Valid @RequestBody ProductCreateDTO productCreateDTO) {
         if (productService.isProductNumberExists(productCreateDTO.getProductNumber())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Product Number already exists");
         }
 
-        productProducer.sendMessage(productCreateDTO.toString());
+        productProducer.sendMessage(productCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(productCreateDTO);
     }
 

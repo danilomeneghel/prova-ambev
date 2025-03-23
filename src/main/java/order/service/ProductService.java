@@ -1,16 +1,18 @@
 package order.service;
 
-import order.dto.ProductCreateDTO;
-import order.dto.ProductDTO;
-import order.entity.Product;
-import order.repository.ProductRepository;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import order.dto.ProductCreateDTO;
+import order.dto.ProductDTO;
+import order.entity.Product;
+import order.repository.ProductRepository;
 
 @Service
 public class ProductService {
@@ -25,12 +27,11 @@ public class ProductService {
         return modelMapper.map(productRepository.save(product), ProductDTO.class);
     }
 
-    @Cacheable("apiCache")
     public ProductDTO getProductById(Long id) {
-        return modelMapper.map(productRepository.findById(id).orElse(null), ProductDTO.class);
+        Optional<Product> product = productRepository.findById(id);
+        return product.map(value -> modelMapper.map(value, ProductDTO.class)).orElse(null);
     }
 
-    @Cacheable("apiCache")
     public List<ProductCreateDTO> filterProducts(ProductCreateDTO productCreateDTO) {
         List<Product> products = productRepository.findByCriteria(productCreateDTO);
         return products.stream().map(product -> modelMapper.map(product, ProductCreateDTO.class)).toList();

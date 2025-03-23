@@ -14,12 +14,12 @@ public class OrderConsumer {
     @Autowired
     private OrderService orderService;
 
-    @KafkaListener(topics = "${kafka.topic.orders}", groupId = "${kafka.group.order-consumers}")
+    @KafkaListener(topics = "${kafka.topic.orders}", groupId = "${kafka.group.order-consumers}", containerFactory = "orderKafkaListenerContainerFactory")
     public void consume(ConsumerRecord<String, OrderCreateDTO> record) {
         OrderCreateDTO orderCreateDTO = record.value();
         System.out.println("Mensagem recebida do Kafka: " + orderCreateDTO);
 
         orderService.createOrder(orderCreateDTO);
     }
-
+    
 }

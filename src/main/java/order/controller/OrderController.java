@@ -1,18 +1,18 @@
 package order.controller;
 
-import order.dto.OrderCreateDTO;
-import order.dto.OrderDTO;
-import order.dto.OrderFilterDTO;
-import order.service.OrderService;
-import order.message.OrderProducer;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
-
-import org.springframework.http.HttpStatus;
-import java.util.List;
+import order.dto.OrderCreateDTO;
+import order.dto.OrderDTO;
+import order.dto.OrderFilterDTO;
+import order.message.OrderProducer;
+import order.service.OrderService;
 
 @RestController
 @RequestMapping("/order")
@@ -30,7 +30,7 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Order Number already exists");
         }
 
-        orderProducer.sendMessage(orderCreateDTO.toString());
+        orderProducer.sendMessage(orderCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(orderCreateDTO);
     }
 
@@ -63,5 +63,5 @@ public class OrderController {
         orderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
     }
-
+    
 }

@@ -19,5 +19,4 @@ public class OrderDTO {
     private Double totalValue;
 
     private List<ProductDTO> products;
-
 }

@@ -1,7 +1,13 @@
 package order.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import order.dto.OrderCreateDTO;
@@ -12,10 +18,6 @@ import order.entity.Order;
 import order.entity.Product;
 import order.repository.OrderRepository;
 import order.repository.ProductRepository;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.ArrayList;
 
 @Service
 public class OrderService {
@@ -54,11 +56,11 @@ public class OrderService {
         return orders.stream().map(order -> modelMapper.map(order, OrderFilterDTO.class)).toList();
     }
 
+    @Cacheable("apiCache")
     public List<OrderDTO> getAllOrders() {
-        List<Order> orders = orderRepository.findAll();
-        return orders.stream()
+        return orderRepository.findAll().stream()
                      .map(order -> modelMapper.map(order, OrderDTO.class))
-                     .toList();
+                     .collect(Collectors.toList());
     }
 
     public OrderDTO updateOrder(Long id, OrderCreateDTO orderCreateDTO) {
