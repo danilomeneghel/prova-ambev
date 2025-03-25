@@ -15,6 +15,7 @@ import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
 import order.dto.OrderFilterDTO;
 import order.dto.ProductCreateDTO;
+import order.dto.ProductDTO;
 import order.entity.Order;
 import order.entity.Product;
 import order.repository.OrderRepository;
@@ -36,12 +37,12 @@ public class OrderService {
         Order order = modelMapper.map(orderCreateDTO, Order.class);
         double totalValue = 0;
         List<Product> products = new ArrayList<>();
-        for (ProductCreateDTO productCreateDTO : orderCreateDTO.getProducts()) {
-            Product product = modelMapper.map(productCreateDTO, Product.class);
-            if (product.getId() == null && !productRepository.existsByProductNumber(product.getProductNumber())) {
+        for (ProductDTO productDTO : orderCreateDTO.getProducts()) {
+            Product product = modelMapper.map(productDTO, Product.class);
+            if (productDTO.getId() == null && !productRepository.existsByProductNumber(product.getProductNumber())) {
                 product = productRepository.save(product);
             } else {
-                product = productRepository.findById(product.getId()).orElseThrow(() -> new IllegalArgumentException("Invalid product ID"));
+                product = productRepository.findById(productDTO.getId()).orElse(product);
             }
             products.add(product);
             totalValue += product.getPrice();
@@ -76,12 +77,12 @@ public class OrderService {
             Order order = optionalOrder.get();
             double totalValue = 0;
             List<Product> products = new ArrayList<>();
-            for (ProductCreateDTO productCreateDTO : orderCreateDTO.getProducts()) {
-                Product product = modelMapper.map(productCreateDTO, Product.class);
+            for (ProductDTO productDTO : orderCreateDTO.getProducts()) {
+                Product product = modelMapper.map(productDTO, Product.class);
                 if (product.getId() == null) {
                     product = productRepository.save(product);
                 } else {
-                    product = productRepository.findById(product.getId()).orElseThrow(() -> new IllegalArgumentException("Invalid product ID"));
+                    product = productRepository.findById(product.getId()).orElse(product);
                 }
                 products.add(product);
                 totalValue += product.getPrice();

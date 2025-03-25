@@ -14,5 +14,5 @@ public class OrderCreateDTO {
     
     private String status;
 
-    private List<ProductCreateDTO> products;
+    private List<ProductDTO> products;
 }

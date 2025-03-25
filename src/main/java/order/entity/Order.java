@@ -31,6 +31,6 @@ public class Order {
 
     private Double totalValue;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Product> products;
 }
