@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import order.dto.ProductCreateDTO;
@@ -37,7 +36,6 @@ public class ProductService {
         return products.stream().map(product -> modelMapper.map(product, ProductCreateDTO.class)).toList();
     }
 
-    @Cacheable("apiCache")
     public List<ProductDTO> getAllProducts() {
         return productRepository.findAll().stream()
                 .map(product -> modelMapper.map(product, ProductDTO.class))

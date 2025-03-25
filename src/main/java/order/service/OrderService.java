@@ -7,14 +7,12 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
 import order.dto.OrderFilterDTO;
-import order.dto.ProductCreateDTO;
 import order.dto.ProductDTO;
 import order.entity.Order;
 import order.entity.Product;
@@ -63,7 +61,6 @@ public class OrderService {
         return orders.stream().map(order -> modelMapper.map(order, OrderFilterDTO.class)).toList();
     }
 
-    @Cacheable("apiCache")
     public List<OrderDTO> getAllOrders() {
         return orderRepository.findAll().stream()
                 .map(order -> modelMapper.map(order, OrderDTO.class))
