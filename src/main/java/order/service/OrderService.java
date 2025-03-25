@@ -38,7 +38,7 @@ public class OrderService {
         List<Product> products = new ArrayList<>();
         for (ProductCreateDTO productCreateDTO : orderCreateDTO.getProducts()) {
             Product product = modelMapper.map(productCreateDTO, Product.class);
-            if (product.getId() == null) {
+            if (product.getId() == null && !productRepository.existsByProductNumber(product.getProductNumber())) {
                 product = productRepository.save(product);
             } else {
                 product = productRepository.findById(product.getId()).orElseThrow(() -> new IllegalArgumentException("Invalid product ID"));
