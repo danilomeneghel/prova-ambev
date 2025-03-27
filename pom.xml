@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>order</groupId>
-    <artifactId>prova-ambev</artifactId>
+    <artifactId>order</artifactId>
     <version>2.1</version>
     <packaging>jar</packaging>
 
-    <name>prova-ambev</name>
+    <name>order</name>
     <description>API de Gerenciamento de Pedidos</description>
 
     <parent>

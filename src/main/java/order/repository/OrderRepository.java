@@ -16,7 +16,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT o FROM Order o WHERE " +
            "(:#{#orderFilterDTO.orderNumber} IS NULL OR o.orderNumber = :#{#orderFilterDTO.orderNumber}) AND " +
            "(:#{#orderFilterDTO.date} IS NULL OR o.date = :#{#orderFilterDTO.date}) AND " +
-           "(:#{#orderFilterDTO.status} IS NULL OR o.status = :#{#orderFilterDTO.status})")
+           "(:#{#orderFilterDTO.status} IS NULL OR o.status = :#{#orderFilterDTO.status}) AND " +
+           "(:#{#orderFilterDTO.totalValue} IS NULL OR o.totalValue = CAST(:#{#orderFilterDTO.totalValue} AS double))")
     List<Order> findByCriteria(@Param("orderFilterDTO") OrderFilterDTO orderFilterDTO);
 
     boolean existsByOrderNumber(Long orderNumber);

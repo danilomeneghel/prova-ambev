@@ -15,6 +15,7 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_id")
     private Long id;
 
     @NotNull(message = "Order Number cannot be null")
@@ -31,9 +32,9 @@ public class Order {
 
     private Double totalValue;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
-        name = "order_product",
+        name = "orders_products",
         joinColumns = @JoinColumn(name = "order_id"),
         inverseJoinColumns = @JoinColumn(name = "product_id")
     )

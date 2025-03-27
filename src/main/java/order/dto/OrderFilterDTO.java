@@ -12,4 +12,6 @@ public class OrderFilterDTO {
     
     private String status;
     
+    private Double totalValue;
+    
 }
