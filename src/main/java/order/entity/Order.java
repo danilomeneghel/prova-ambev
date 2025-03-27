@@ -24,7 +24,7 @@ public class Order {
     
     @NotNull(message = "Date cannot be null")
     @Column(nullable = false)
-    private LocalDate date;
+    private LocalDate date = LocalDate.now(); 
     
     @NotBlank(message = "Status cannot be null")
     @Column(nullable = false)

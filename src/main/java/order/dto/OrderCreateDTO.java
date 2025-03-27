@@ -2,6 +2,7 @@ package order.dto;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.ArrayList;
 
 import lombok.Data;
 
@@ -14,5 +15,6 @@ public class OrderCreateDTO {
     
     private String status;
 
-    private List<ProductDTO> products;
+    private List<ProductDTO> products = new ArrayList<>(); 
+    
 }

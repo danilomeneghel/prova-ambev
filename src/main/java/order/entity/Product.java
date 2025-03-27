@@ -20,7 +20,7 @@ public class Product {
 
     @NotNull(message = "Name cannot be null")
     @Column(nullable = false)
-    private String name;
+    private String name = ""; 
     
     @NotNull(message = "Price cannot be null")
     @Column(nullable = false)
