@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +22,7 @@ import order.dto.OrderDTO;
 import order.dto.OrderFilterDTO;
 import order.message.OrderProducer;
 import order.service.OrderService;
+import order.discovery.ZookeeperServiceDiscovery;
 
 @ExtendWith(MockitoExtension.class)
 public class OrderControllerTest {
@@ -31,6 +33,9 @@ public class OrderControllerTest {
     @Mock
     private OrderProducer orderProducer;
 
+    @Mock
+    private ZookeeperServiceDiscovery discovery;
+
     @InjectMocks
     private OrderController orderController;
 
@@ -40,7 +45,7 @@ public class OrderControllerTest {
         MockMvcBuilders.standaloneSetup(orderController).build();
     }
     
-    /*@Test
+    @Test
     public void testCreateOrder() {
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setOrderNumber(123L);
@@ -52,9 +57,9 @@ public class OrderControllerTest {
         verify(orderProducer, times(1)).sendMessage(any(OrderCreateDTO.class));
         assert response.getStatusCode() == HttpStatus.CREATED;
         assert Objects.equals(response.getBody(), orderCreateDTO);
-    }*/
+    }
 
-    /*@Test
+    @Test
     public void testCreateOrder_OrderNumberExists() {
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setOrderNumber(123L);
@@ -66,7 +71,7 @@ public class OrderControllerTest {
         assert response.getStatusCode() == HttpStatus.CONFLICT;
         assert response.getBody() != null;
         assert "Order Number already exists".equals(response.getBody());
-    }*/
+    }
 
     @Test
     public void testGetOrderById() {
