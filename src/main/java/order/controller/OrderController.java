@@ -1,17 +1,26 @@
 package order.controller;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.apache.curator.x.discovery.ServiceInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
+import order.discovery.ZookeeperServiceDiscovery;
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
 import order.dto.OrderFilterDTO;
+import order.dto.ProductDTO;
 import order.message.OrderProducer;
+import order.registry.ZookeeperServiceRegistry;
 import order.service.OrderService;
 
 @RestController
@@ -24,12 +33,49 @@ public class OrderController {
     @Autowired
     private OrderProducer orderProducer;
 
+    @Autowired
+    private ZookeeperServiceRegistry registry;
+
+    private final ZookeeperServiceDiscovery discovery;
+
+    @Value("${zookeeper.service.name}")
+    private String serviceName;
+
+    @Value("${zookeeper.service.host}")
+    private String serviceHost;
+
+    @Value("${zookeeper.service.port}")
+    private int servicePort;
+
+    public OrderController(ZookeeperServiceDiscovery discovery, KafkaTemplate<String, String> kafkaTemplate) {
+        this.discovery = discovery;
+    }
+
+    @PostConstruct
+    public void registerService() throws Exception {
+        registry.registerService(serviceName, serviceHost, servicePort);
+    }
+
     @PostMapping
     public ResponseEntity<Object> createOrder(@Valid @RequestBody OrderCreateDTO orderCreateDTO) {
         if (orderService.isOrderNumberExists(orderCreateDTO.getOrderNumber())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Order Number already exists");
         }
 
+        // Tenta se conectar com outra API
+        Optional<ServiceInstance<String>> serviceInstance = discovery.getServiceInstance(serviceName);
+
+        if (serviceInstance.isPresent()) {
+            // Pega os produtos cadastrados
+            String url = "http://" + serviceInstance.get().getAddress() + ":" + serviceInstance.get().getPort() + "/products-order";
+            
+            RestTemplate restTemplate = new RestTemplate();
+            List<ProductDTO> products = List.of(restTemplate.getForObject(url, ProductDTO[].class));
+            if (!products.isEmpty()) {
+                orderCreateDTO.setProducts(products);
+            }
+        }
+        
         orderProducer.sendMessage(orderCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(orderCreateDTO);
     }
