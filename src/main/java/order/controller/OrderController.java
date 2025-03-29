@@ -62,17 +62,23 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Order Number already exists");
         }
 
-        // Tenta se conectar com outra API
+        // Tenta descobrir os serviços registrados
         Optional<ServiceInstance<String>> serviceInstance = discovery.getServiceInstance(serviceName);
 
-        if (serviceInstance.isPresent()) {
-            // Pega os produtos cadastrados
-            String url = "http://" + serviceInstance.get().getAddress() + ":" + serviceInstance.get().getPort() + "/products-order";
-            
+        if (orderCreateDTO.getProducts() == null && serviceInstance.isPresent()) {
+            // Pega os produtos cadastrados dinamicamente
+            String url = String.format("http://%s:%d/product", serviceInstance.get().getAddress(), serviceInstance.get().getPort());
+            System.out.println("URL Products: " + url);
+
             RestTemplate restTemplate = new RestTemplate();
-            List<ProductDTO> products = List.of(restTemplate.getForObject(url, ProductDTO[].class));
-            if (!products.isEmpty()) {
-                orderCreateDTO.setProducts(products);
+            try {
+                List<ProductDTO> products = List.of(restTemplate.getForObject(url, ProductDTO[].class));
+                System.out.println("Products :" + products);
+                if (!products.isEmpty()) {
+                    orderCreateDTO.setProducts(products);
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to fetch products from the API: " + e.getMessage());
             }
         }
         

@@ -3,6 +3,8 @@ package order.config;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.curator.x.discovery.ServiceDiscovery;
+import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +26,14 @@ public class ZookeeperConfig {
         );
         client.start();
         return client;
+    }
+
+    @Bean
+    public ServiceDiscovery<String> serviceDiscovery(CuratorFramework curatorFramework) throws Exception {
+        return ServiceDiscoveryBuilder.builder(String.class)
+                .client(curatorFramework)
+                .basePath("/services")
+                .build();
     }
     
 }

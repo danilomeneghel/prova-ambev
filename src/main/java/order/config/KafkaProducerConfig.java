@@ -49,5 +49,15 @@ public class KafkaProducerConfig {
     public KafkaTemplate<String, ProductCreateDTO> ProductKafkaTemplate() {
         return new KafkaTemplate<>(ProductProducerFactory());
     }
+
+    @Bean
+    public KafkaTemplate<String, String> stringKafkaTemplate() {
+        Map<String, Object> configProps = new HashMap<>();
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        ProducerFactory<String, String> producerFactory = new DefaultKafkaProducerFactory<>(configProps);
+        return new KafkaTemplate<>(producerFactory);
+    }
     
 }
