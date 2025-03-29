@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import order.dto.ProductCreateDTO;
 import order.dto.ProductDTO;
-import order.message.ProductProducer;
 import order.service.ProductService;
 
 @WebMvcTest(ProductController.class)
@@ -30,9 +29,6 @@ public class ProductControllerTest {
 
     @MockBean
     private ProductService productService;
-
-    @MockBean
-    private ProductProducer productProducer;
 
     @InjectMocks
     private ProductController productController;

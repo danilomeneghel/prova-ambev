@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import order.dto.ProductCreateDTO;
 import order.dto.ProductDTO;
-import order.message.ProductProducer;
 import order.service.ProductService;
 
 @RestController
@@ -20,16 +19,12 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @Autowired
-    private ProductProducer productProducer;
-
     @PostMapping
     public ResponseEntity<Object> createProduct(@Valid @RequestBody ProductCreateDTO productCreateDTO) {
         if (productService.isProductNumberExists(productCreateDTO.getProductNumber())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Product Number already exists");
         }
 
-        productProducer.sendMessage(productCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(productCreateDTO);
     }
 
