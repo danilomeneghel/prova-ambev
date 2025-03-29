@@ -71,14 +71,25 @@ docker run -it --rm --network app-tier -e KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-
 Para carregar o projeto, digite no terminal:
 
 ```
+$ cd order-service
 $ mvn clean spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 Aguarde carregar todo o serviço web. <br>
-Após concluído, digite o endereço abaixo em seu navegador, nele será listado os pedidos
-cadastrados na API. <br>
+Após concluído, digite o endereço abaixo em seu navegador: <br>
 
-http://localhost:8080/order
+http://localhost:8080/order <br>
+
+
+```
+$ cd product-service
+$ mvn clean spring-boot:run
+```
+
+Aguarde carregar todo o serviço web. <br>
+Após concluído, digite o endereço abaixo em seu navegador: <br>
+
+http://localhost:8081/product <br>
 
 
 ## Docker (Opcional)
@@ -86,6 +97,7 @@ http://localhost:8080/order
 Para rodar o projeto via Docker, bastar executar o seguinte comando:
 
 ```
+$ cd order-service
 $ docker build -t projeto .
 $ docker run -p 8080:8080 -d projeto
 ```
@@ -93,6 +105,7 @@ $ docker run -p 8080:8080 -d projeto
 Ou via Docker-Compose:
 
 ```
+$ cd order-service
 $ docker compose up
 ```
 
