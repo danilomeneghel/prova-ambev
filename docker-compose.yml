@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   zookeeper:
     image: 'bitnami/zookeeper:3.8.0'
@@ -9,7 +11,7 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=yes
     networks:
       - app-network
-    
+
   kafka:
     image: 'bitnami/kafka:3.3.2'
     container_name: 'kafka_ambev'
@@ -90,6 +92,7 @@ services:
 
 volumes:
   mysql-data:
+
 networks:
   app-network:
     driver: bridge

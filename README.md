@@ -73,7 +73,7 @@ Para verificar os serviços registrados dentro do container Zookeeper, utilize o
 
 ```
 docker exec -it zookeeper_ambev /bin/bash
-zkCli.sh
+/opt/bitnami/zookeeper/bin/zkCli.sh
 ls /services
 ```
 
