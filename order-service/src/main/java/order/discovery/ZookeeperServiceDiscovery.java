@@ -15,12 +15,15 @@ public class ZookeeperServiceDiscovery {
 
     private final ServiceDiscovery<Object> serviceDiscovery;
 
-    public ZookeeperServiceDiscovery(CuratorFramework client, @Value("${zookeeper.basePath}") String basePath) {
+    @Value("${product.service.basePath}")
+    private String productServiceBasePath;
+
+    public ZookeeperServiceDiscovery(CuratorFramework client, String productServiceBasePath) {
         try {
             JsonInstanceSerializer<Object> serializer = new JsonInstanceSerializer<>(Object.class);
             this.serviceDiscovery = ServiceDiscoveryBuilder.builder(Object.class)
                     .client(client)
-                    .basePath(basePath)
+                    .basePath(productServiceBasePath)
                     .serializer(serializer)
                     .build();
             serviceDiscovery.start();
