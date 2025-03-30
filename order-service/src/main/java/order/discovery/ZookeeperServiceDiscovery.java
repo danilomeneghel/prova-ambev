@@ -1,51 +1,41 @@
 package order.discovery;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.curator.x.discovery.ServiceDiscovery;
+import org.apache.curator.x.discovery.ServiceInstance;
+import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
+import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Collection;
 
 @Service
 public class ZookeeperServiceDiscovery {
 
-    @Value("${zookeeper.host}")
-    private String zookeeperHost;
+    private final ServiceDiscovery<Object> serviceDiscovery;
 
-    @Value("${zookeeper.port}")
-    private int zookeeperPort;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    public String discoverServiceUrl(String serviceName) {
-        String zookeeperConnectionString = zookeeperHost + ":" + zookeeperPort;
-
-        try (CuratorFramework client = CuratorFrameworkFactory.newClient(
-                zookeeperConnectionString, new ExponentialBackoffRetry(1000, 3))) {
-            
-            client.start();
-
-            String servicePath = "/services/" + serviceName;
-            List<String> instances = client.getChildren().forPath(servicePath);
-
-            if (!instances.isEmpty()) {
-                String instancePath = servicePath + "/" + instances.get(0);
-                byte[] data = client.getData().forPath(instancePath);
-
-                JsonNode jsonNode = objectMapper.readTree(data);
-                String host = jsonNode.get("address").asText();
-                int port = jsonNode.get("port").asInt();
-
-                return "http://" + host + ":" + port;
-            } else {
-                throw new RuntimeException("No instance of " + serviceName + " found in Zookeeper.");
-            }
+    public ZookeeperServiceDiscovery(CuratorFramework client, String basePath) {
+        // Usando o ServiceDiscoveryBuilder corretamente
+        try {
+            JsonInstanceSerializer<Object> serializer = new JsonInstanceSerializer<>(Object.class);
+            this.serviceDiscovery = ServiceDiscoveryBuilder.builder(Object.class)
+                    .client(client)
+                    .basePath(basePath)
+                    .serializer(serializer)
+                    .build();
+            serviceDiscovery.start();
         } catch (Exception e) {
-            throw new RuntimeException("Error discovering service in Zookeeper: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to start service discovery", e);
         }
     }
+
+    public String discoverServiceUrl(String serviceName) throws Exception {
+        Collection<ServiceInstance<Object>> instances = serviceDiscovery.queryForInstances(serviceName);
+        if (instances == null || instances.isEmpty()) {
+            throw new RuntimeException("No instances available for service: " + serviceName);
+        }
+        ServiceInstance<Object> instance = instances.iterator().next();
+        return "http://" + instance.getAddress() + ":" + instance.getPort();
+    }
+    
 }
