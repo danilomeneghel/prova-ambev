@@ -5,6 +5,7 @@ import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -14,8 +15,8 @@ public class ZookeeperServiceDiscovery {
 
     private final ServiceDiscovery<Object> serviceDiscovery;
 
-    public ZookeeperServiceDiscovery(CuratorFramework client, String basePath) {
-        // Usando o ServiceDiscoveryBuilder corretamente
+    public ZookeeperServiceDiscovery(CuratorFramework client, @Value("${zookeeper.basePath}") String basePath) {
+
         try {
             JsonInstanceSerializer<Object> serializer = new JsonInstanceSerializer<>(Object.class);
             this.serviceDiscovery = ServiceDiscoveryBuilder.builder(Object.class)
@@ -37,5 +38,5 @@ public class ZookeeperServiceDiscovery {
         ServiceInstance<Object> instance = instances.iterator().next();
         return "http://" + instance.getAddress() + ":" + instance.getPort();
     }
-    
+
 }
