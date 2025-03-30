@@ -50,7 +50,7 @@ $ cd prova-ambev
 
 Abra seu MySql e crie as 2 bases de dados:
 
-order_db
+order_db <br>
 product_db
 
 
