@@ -1,5 +1,7 @@
 package order.discovery;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
@@ -8,24 +10,20 @@ import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.util.Collection;
 
 @Service
 public class ZookeeperServiceDiscovery {
 
     private final ServiceDiscovery<Object> serviceDiscovery;
-    private final CuratorFramework client;
-    private final String productServiceBasePath;
 
-    public ZookeeperServiceDiscovery(CuratorFramework client, @Value("${product.service.basePath}") String productServiceBasePath) {
-        this.client = client;
-        this.productServiceBasePath = productServiceBasePath;
+    public ZookeeperServiceDiscovery(CuratorFramework client, 
+                                     @Value("${product.service.basePath}") String productServiceBasePath) {
+        JsonInstanceSerializer<Object> serializer = new JsonInstanceSerializer<>(Object.class);
         this.serviceDiscovery = ServiceDiscoveryBuilder.builder(Object.class)
                 .client(client)
                 .basePath(productServiceBasePath)
-                .serializer(new JsonInstanceSerializer<>(Object.class))
+                .serializer(serializer)
                 .build();
     }
 
@@ -39,11 +37,11 @@ public class ZookeeperServiceDiscovery {
     }
 
     @PreDestroy
-    public void stop() {
+    public void close() {
         try {
             serviceDiscovery.close();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to stop service discovery", e);
+            throw new RuntimeException("Failed to close service discovery", e);
         }
     }
 
