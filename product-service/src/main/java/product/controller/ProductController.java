@@ -25,13 +25,13 @@ public class ProductController {
     @Autowired
     private ZookeeperServiceRegistry registry;
 
-    @Value("${zookeeper.service.name}")
+    @Value("${product.service.name}")
     private String serviceName;
 
-    @Value("${zookeeper.host}")
+    @Value("${product.service.host}")
     private String serviceHost;
 
-    @Value("${zookeeper.port}")
+    @Value("${product.service.port}")
     private int servicePort;
 
     @PostConstruct

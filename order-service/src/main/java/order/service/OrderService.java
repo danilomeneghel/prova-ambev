@@ -40,7 +40,7 @@ public class OrderService {
             if (!productRepository.existsByProductNumber(product.getProductNumber())) {
                 product = productRepository.save(product);
             } else {
-                product = productRepository.findById(productDTO.getId()).orElse(product);
+                product = productRepository.findByProductNumber(productDTO.getProductNumber()).orElse(null);
             }
             products.add(product);
             totalValue += product.getPrice();

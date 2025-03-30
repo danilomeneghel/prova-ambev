@@ -65,6 +65,7 @@ services:
       - mysql
       - zookeeper
       - kafka
+      - product_service
 
   product_service:
     container_name: product_service

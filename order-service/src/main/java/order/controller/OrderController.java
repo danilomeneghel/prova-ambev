@@ -1,8 +1,6 @@
 package order.controller;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -11,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import jakarta.validation.Valid;
+import order.discovery.ZookeeperServiceDiscovery;
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
 import order.dto.OrderFilterDTO;
@@ -28,8 +27,11 @@ public class OrderController {
     @Autowired
     private OrderProducer orderProducer;
 
-    @Value("${product.service.url}")
-    private String serviceUrl;
+    @Autowired
+    private ZookeeperServiceDiscovery serviceDiscovery;
+
+    @Value("${product.service.name}")
+    private String productServiceName;
 
     @PostMapping
     public ResponseEntity<Object> createOrder(@Valid @RequestBody OrderCreateDTO orderCreateDTO) {
@@ -39,6 +41,7 @@ public class OrderController {
 
         try {
             if (orderCreateDTO.getProducts().isEmpty()) {
+                String serviceUrl = serviceDiscovery.discoverServiceUrl(productServiceName) + "/product";
                 System.out.println("URL Products: " + serviceUrl);
 
                 RestTemplate restTemplate = new RestTemplate();
@@ -52,7 +55,7 @@ public class OrderController {
         } catch (Exception e) {
             System.err.println("Error find products: " + e.getMessage());
         }
-        
+
         orderProducer.sendMessage(orderCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(orderCreateDTO);
     }
@@ -86,4 +89,5 @@ public class OrderController {
         orderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
     }
+
 }

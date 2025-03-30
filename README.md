@@ -123,6 +123,7 @@ http://localhost:8080/swagger-ui.html
 Para realizar os testes, execute o seguinte comando no terminal:
 
 ```
+$ cd order-service
 $ mvn test
 ```
 
