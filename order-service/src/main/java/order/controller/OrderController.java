@@ -28,7 +28,7 @@ public class OrderController {
     @Autowired
     private OrderProducer orderProducer;
 
-    @Value("${zookeeper.service.url}")
+    @Value("${product.service.url}")
     private String serviceUrl;
 
     @PostMapping
