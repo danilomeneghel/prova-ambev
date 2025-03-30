@@ -46,7 +46,7 @@ public class OrderController {
             try {
                 Optional<ServiceInstance<String>> serviceInstance = discovery.getServiceInstance(serviceName);
 
-                if (orderCreateDTO.getProducts() == null && serviceInstance.isPresent()) {
+                if (orderCreateDTO.getProducts().isEmpty() && serviceInstance.isPresent()) {
                     String url = String.format("http://%s:%d/product", serviceInstance.get().getAddress(), serviceInstance.get().getPort());
                     System.out.println("URL Products: " + url);
 

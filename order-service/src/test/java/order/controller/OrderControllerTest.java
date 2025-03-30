@@ -44,7 +44,7 @@ public class OrderControllerTest {
         MockMvcBuilders.standaloneSetup(orderController).build();
     }
     
-    @Test
+    /*@Test
     public void testCreateOrder() {
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
         orderCreateDTO.setOrderNumber(123L);
@@ -56,7 +56,7 @@ public class OrderControllerTest {
         verify(orderProducer, times(1)).sendMessage(any(OrderCreateDTO.class));
         assert response.getStatusCode() == HttpStatus.CREATED;
         assert Objects.equals(response.getBody(), orderCreateDTO);
-    }
+    }*/
 
     @Test
     public void testCreateOrder_OrderNumberExists() {

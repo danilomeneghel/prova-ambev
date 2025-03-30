@@ -48,9 +48,10 @@ $ cd prova-ambev
 
 ## MySql
 
-Abra seu MySql e crie a base de dados:
+Abra seu MySql e crie as 2 bases de dados:
 
-prova_ambev
+order_db
+product_db
 
 
 ## Kafka
@@ -83,7 +84,7 @@ http://localhost:8080/order <br>
 
 ```
 $ cd product-service
-$ mvn clean spring-boot:run
+$ mvn clean spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 Aguarde carregar todo o serviço web. <br>
@@ -97,15 +98,6 @@ http://localhost:8081/product <br>
 Para rodar o projeto via Docker, bastar executar o seguinte comando:
 
 ```
-$ cd order-service
-$ docker build -t projeto .
-$ docker run -p 8080:8080 -d projeto
-```
-
-Ou via Docker-Compose:
-
-```
-$ cd order-service
 $ docker compose up
 ```
 

@@ -40,14 +40,15 @@ services:
     networks:
       - app-network
 
-  api:
-    container_name: api_ambev
-    build: .
+  order_service:
+    container_name: order_service
+    hostname: 127.0.0.1
+    build: order-service/.
     command: mvn clean spring-boot:run -Dspring-boot.run.profiles=docker
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/prova_ambev
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/order_db
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: secret
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -57,7 +58,28 @@ services:
       KAFKA_PRODUCT_TOPIC: product-topic
       KAFKA_PRODUCT_GROUP: product-group
     volumes:
-      - ../:/spring-boot-api
+      - ../:/order_service
+    networks:
+      - app-network
+    depends_on:
+      - mysql
+      - zookeeper
+      - kafka
+
+  product_service:
+    container_name: product_service
+    hostname: 127.0.0.1
+    build: product-service/.
+    command: mvn clean spring-boot:run -Dspring-boot.run.profiles=docker
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/product_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    volumes:
+      - ../:/product_service
     networks:
       - app-network
     depends_on:
