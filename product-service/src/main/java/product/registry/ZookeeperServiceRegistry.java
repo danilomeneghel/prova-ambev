@@ -5,6 +5,9 @@ import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.io.Closeable;
@@ -14,6 +17,15 @@ import java.io.IOException;
 public class ZookeeperServiceRegistry implements Closeable {
     
     private final ServiceDiscovery<String> serviceDiscovery;
+    
+    @Value("${zookeeper.host}")
+    private String serverHost;
+    
+    @Value("${zookeeper.port}")
+    private int serverPort;
+    
+    @Value("${product.service.name}")
+    private String serviceName;
 
     public ZookeeperServiceRegistry(CuratorFramework curatorFramework) throws Exception {
         JsonInstanceSerializer<String> serializer = new JsonInstanceSerializer<>(String.class);
@@ -27,11 +39,21 @@ public class ZookeeperServiceRegistry implements Closeable {
         serviceDiscovery.start();
     }
 
-    public void registerService(String serviceName, String address, int port) throws Exception {
+    @EventListener(ApplicationReadyEvent.class)
+    public void registerOnStartup() {
+        try {
+            registerService(serviceName, serverHost, serverPort);
+            System.out.println("Registered " + serviceName + " in Zookeeper at address " + serverHost + ":" + serverPort);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to register service in Zookeeper", e);
+        }
+    }
+
+    public void registerService(String serviceName, String serverHost, int serverPort) throws Exception {
         ServiceInstance<String> instance = ServiceInstance.<String>builder()
                 .name(serviceName)
-                .address(address)
-                .port(port)
+                .address(serverHost)
+                .port(serverPort)
                 .build();
 
         serviceDiscovery.registerService(instance);
@@ -41,5 +63,5 @@ public class ZookeeperServiceRegistry implements Closeable {
     public void close() throws IOException {
         serviceDiscovery.close();
     }
-    
+
 }
