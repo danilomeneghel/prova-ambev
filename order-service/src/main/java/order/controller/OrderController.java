@@ -3,7 +3,6 @@ package order.controller;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.curator.x.discovery.ServiceInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import jakarta.validation.Valid;
-import order.discovery.ZookeeperServiceDiscovery;
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
 import order.dto.OrderFilterDTO;
@@ -30,11 +28,8 @@ public class OrderController {
     @Autowired
     private OrderProducer orderProducer;
 
-    @Autowired
-    private ZookeeperServiceDiscovery discovery;
-
-    @Value("${zookeeper.service.name}")
-    private String serviceName;
+    @Value("${zookeeper.service.url}")
+    private String serviceUrl;
 
     @PostMapping
     public ResponseEntity<Object> createOrder(@Valid @RequestBody OrderCreateDTO orderCreateDTO) {
@@ -42,25 +37,20 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Order Number already exists");
         }
 
-        if (discovery != null) {
-            try {
-                Optional<ServiceInstance<String>> serviceInstance = discovery.getServiceInstance(serviceName);
+        try {
+            if (orderCreateDTO.getProducts().isEmpty()) {
+                System.out.println("URL Products: " + serviceUrl);
 
-                if (orderCreateDTO.getProducts().isEmpty() && serviceInstance.isPresent()) {
-                    String url = String.format("http://%s:%d/product", serviceInstance.get().getAddress(), serviceInstance.get().getPort());
-                    System.out.println("URL Products: " + url);
+                RestTemplate restTemplate = new RestTemplate();
+                List<ProductDTO> products = List.of(restTemplate.getForObject(serviceUrl, ProductDTO[].class));
+                System.out.println("Products: " + products);
 
-                    RestTemplate restTemplate = new RestTemplate();
-                    List<ProductDTO> products = List.of(restTemplate.getForObject(url, ProductDTO[].class));
-                    System.out.println("Products: " + products);
-
-                    if (!products.isEmpty()) {
-                        orderCreateDTO.setProducts(products);
-                    }
+                if (!products.isEmpty()) {
+                    orderCreateDTO.setProducts(products);
                 }
-            } catch (Exception e) {
-                System.err.println("Erro ao buscar o serviço no Zookeeper: " + e.getMessage());
             }
+        } catch (Exception e) {
+            System.err.println("Error find products: " + e.getMessage());
         }
         
         orderProducer.sendMessage(orderCreateDTO);

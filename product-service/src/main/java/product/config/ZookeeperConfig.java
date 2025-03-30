@@ -12,10 +12,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ZookeeperConfig {
 
-    @Value("${zookeeper.service.host}")
+    @Value("${zookeeper.host}")
     private String serviceHost;
 
-    @Value("${zookeeper.service.port}")
+    @Value("${zookeeper.port}")
     private int servicePort;
 
     @Bean
