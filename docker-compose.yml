@@ -42,7 +42,7 @@ services:
 
   order_service:
     container_name: order_service
-    hostname: 127.0.0.1
+    hostname: order-service
     build: order-service/.
     command: mvn clean spring-boot:run -Dspring-boot.run.profiles=docker
     ports:
@@ -68,7 +68,7 @@ services:
 
   product_service:
     container_name: product_service
-    hostname: 127.0.0.1
+    hostname: product-service
     build: product-service/.
     command: mvn clean spring-boot:run -Dspring-boot.run.profiles=docker
     ports:
