@@ -67,6 +67,27 @@ docker run -it --rm --network app-tier -e KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-
 ```
 
 
+## Zookeeper
+
+Para verificar os serviços registrados dentro do container Zookeeper, utilize o comando:
+
+```
+docker exec -it zookeeper_ambev /bin/bash
+ls /services
+```
+
+Para ver se o serviço product-service foi registrado corretamente, utilize o comando:
+```
+ls /services/product-service
+```
+
+Após isso ele mostrará um ID único, onde com esse ID poderá ver todos os dados salvo desse serviço:
+
+```
+get /services/product-service/25626c1b-8678-4cfd-a3a8-d5538976b1cd
+```
+
+
 ## Maven
 
 Para carregar o projeto, digite no terminal:
