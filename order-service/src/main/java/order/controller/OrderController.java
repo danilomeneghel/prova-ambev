@@ -30,9 +30,6 @@ public class OrderController {
     @Autowired
     private ZookeeperServiceDiscovery serviceDiscovery;
 
-    @Value("${product.service.name}")
-    private String productServiceName;
-
     @PostMapping
     public ResponseEntity<Object> createOrder(@Valid @RequestBody OrderCreateDTO orderCreateDTO) {
         if (orderService.isOrderNumberExists(orderCreateDTO.getOrderNumber())) {
@@ -41,7 +38,7 @@ public class OrderController {
 
         try {
             if (orderCreateDTO.getProducts().isEmpty()) {
-                String serviceUrl = serviceDiscovery.discoverServiceUrl(productServiceName) + "/product";
+                String serviceUrl = serviceDiscovery.discoverServiceUrl() + "/product";
                 System.out.println("URL Products: " + serviceUrl);
 
                 RestTemplate restTemplate = new RestTemplate();

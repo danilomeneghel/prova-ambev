@@ -17,7 +17,7 @@ public class ZookeeperServiceDiscovery {
 
     private final ServiceDiscovery<Object> serviceDiscovery;
 
-    public ZookeeperServiceDiscovery(CuratorFramework client, 
+    public ZookeeperServiceDiscovery(CuratorFramework client,
                                      @Value("${product.service.basePath}") String productServiceBasePath) {
         JsonInstanceSerializer<Object> serializer = new JsonInstanceSerializer<>(Object.class);
         this.serviceDiscovery = ServiceDiscoveryBuilder.builder(Object.class)
@@ -45,12 +45,13 @@ public class ZookeeperServiceDiscovery {
         }
     }
 
-    public String discoverServiceUrl(String serviceName) throws Exception {
-        Collection<ServiceInstance<Object>> instances = serviceDiscovery.queryForInstances(serviceName);
+    public String discoverServiceUrl() throws Exception {
+        Collection<ServiceInstance<Object>> instances = serviceDiscovery.queryForInstances("product-service");
         if (instances == null || instances.isEmpty()) {
-            throw new RuntimeException("No instances available for service: " + serviceName);
+            throw new RuntimeException("No instances available for service: product-service");
         }
         ServiceInstance<Object> instance = instances.iterator().next();
         return "http://" + instance.getAddress() + ":" + instance.getPort();
     }
+    
 }
