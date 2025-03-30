@@ -16,7 +16,6 @@ public class ZookeeperServiceDiscovery {
     private final ServiceDiscovery<Object> serviceDiscovery;
 
     public ZookeeperServiceDiscovery(CuratorFramework client, @Value("${zookeeper.basePath}") String basePath) {
-
         try {
             JsonInstanceSerializer<Object> serializer = new JsonInstanceSerializer<>(Object.class);
             this.serviceDiscovery = ServiceDiscoveryBuilder.builder(Object.class)
@@ -36,7 +35,9 @@ public class ZookeeperServiceDiscovery {
             throw new RuntimeException("No instances available for service: " + serviceName);
         }
         ServiceInstance<Object> instance = instances.iterator().next();
-        return "http://" + instance.getAddress() + ":" + instance.getPort();
+        String address = instance.getAddress();
+        int port = instance.getPort();
+        return "http://" + address + ":" + port;
     }
-
+    
 }
