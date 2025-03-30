@@ -28,10 +28,10 @@ public class ProductController {
     @Value("${zookeeper.service.name}")
     private String serviceName;
 
-    @Value("${zookeeper.service.host}")
+    @Value("${zookeeper.host}")
     private String serviceHost;
 
-    @Value("${zookeeper.service.port}")
+    @Value("${zookeeper.port}")
     private int servicePort;
 
     @PostConstruct
