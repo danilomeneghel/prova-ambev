@@ -37,7 +37,7 @@ public class OrderService {
         List<Product> products = new ArrayList<>();
         for (ProductDTO productDTO : orderCreateDTO.getProducts()) {
             Product product = modelMapper.map(productDTO, Product.class);
-            if (productDTO.getId() == null && !productRepository.existsByProductNumber(product.getProductNumber())) {
+            if (!productRepository.existsByProductNumber(product.getProductNumber())) {
                 product = productRepository.save(product);
             } else {
                 product = productRepository.findById(productDTO.getId()).orElse(product);
