@@ -15,27 +15,25 @@ import java.io.IOException;
 
 @Service
 public class ZookeeperServiceRegistry implements Closeable {
-    
+
     private final ServiceDiscovery<String> serviceDiscovery;
-    
+
     @Value("${zookeeper.host}")
     private String serverHost;
-    
+
     @Value("${zookeeper.port}")
     private int serverPort;
-    
+
     @Value("${product.service.name}")
     private String serviceName;
 
     public ZookeeperServiceRegistry(CuratorFramework curatorFramework) throws Exception {
         JsonInstanceSerializer<String> serializer = new JsonInstanceSerializer<>(String.class);
-
         this.serviceDiscovery = ServiceDiscoveryBuilder.builder(String.class)
                 .client(curatorFramework)
                 .basePath("/services")
                 .serializer(serializer)
                 .build();
-
         serviceDiscovery.start();
     }
 
@@ -43,9 +41,9 @@ public class ZookeeperServiceRegistry implements Closeable {
     public void registerOnStartup() {
         try {
             registerService(serviceName, serverHost, serverPort);
-            System.out.println("Registered " + serviceName + " in Zookeeper at address " + serverHost + ":" + serverPort);
+            System.out.printf("Service '%s' registered successfully at %s:%d%n", serviceName, serverHost, serverPort);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to register service in Zookeeper", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -55,7 +53,6 @@ public class ZookeeperServiceRegistry implements Closeable {
                 .address(serverHost)
                 .port(serverPort)
                 .build();
-
         serviceDiscovery.registerService(instance);
     }
 
@@ -63,5 +60,4 @@ public class ZookeeperServiceRegistry implements Closeable {
     public void close() throws IOException {
         serviceDiscovery.close();
     }
-
 }

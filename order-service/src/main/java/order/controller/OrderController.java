@@ -35,24 +35,18 @@ public class OrderController {
         if (orderService.isOrderNumberExists(orderCreateDTO.getOrderNumber())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Order Number already exists");
         }
-
         try {
             if (orderCreateDTO.getProducts().isEmpty()) {
                 String serviceUrl = serviceDiscovery.discoverServiceUrl() + "/product";
-                System.out.println("URL Products: " + serviceUrl);
-
                 RestTemplate restTemplate = new RestTemplate();
                 List<ProductDTO> products = List.of(restTemplate.getForObject(serviceUrl, ProductDTO[].class));
-                System.out.println("Products: " + products);
-
                 if (!products.isEmpty()) {
                     orderCreateDTO.setProducts(products);
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error find products: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Failed to retrieve products.");
         }
-
         orderProducer.sendMessage(orderCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(orderCreateDTO);
     }
