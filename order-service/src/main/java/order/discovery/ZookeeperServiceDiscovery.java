@@ -31,7 +31,9 @@ public class ZookeeperServiceDiscovery {
     public void start() {
         try {
             serviceDiscovery.start();
+            System.out.println("Service discovery started successfully.");
         } catch (Exception e) {
+            System.err.println("Error starting service discovery: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -41,22 +43,19 @@ public class ZookeeperServiceDiscovery {
         try {
             serviceDiscovery.close();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            System.err.println("Error closing service discovery: " + e.getMessage());
         }
     }
 
     public String discoverServiceUrl() throws Exception {
-        for (int attempt = 1; attempt <= 3; attempt++) {
-            try {
-                Collection<ServiceInstance<Object>> instances = serviceDiscovery.queryForInstances("product-service");
-                if (instances != null && !instances.isEmpty()) {
-                    ServiceInstance<Object> instance = instances.iterator().next();
-                    return "http://" + instance.getAddress() + ":" + instance.getPort();
-                }
-            } catch (Exception e) {
-                Thread.sleep(1000);
-            }
+        Collection<ServiceInstance<Object>> instances = serviceDiscovery.queryForInstances("product-service");
+        if (instances == null || instances.isEmpty()) {
+            throw new RuntimeException("No instances available for service: product-service");
         }
-        throw new RuntimeException("No instances available for service: product-service");
+        ServiceInstance<Object> instance = instances.iterator().next();
+        String url = "http://" + instance.getAddress() + ":" + instance.getPort();
+        System.out.println("URL service discovered: " + url);
+        return url;
     }
+    
 }

@@ -1,13 +1,13 @@
 package product.registry;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.io.Closeable;
@@ -17,47 +17,77 @@ import java.io.IOException;
 public class ZookeeperServiceRegistry implements Closeable {
 
     private final ServiceDiscovery<String> serviceDiscovery;
+    private final String serviceName;
+    private final String serviceHost;
+    private final int servicePort;
+    private final String basePath;
 
-    @Value("${zookeeper.host}")
-    private String serverHost;
+    public ZookeeperServiceRegistry(
+            CuratorFramework client,
+            @Value("${product.service.name}") String serviceName,
+            @Value("${product.service.host}") String serviceHost,
+            @Value("${product.service.port}") int servicePort,
+            @Value("${product.service.basePath}") String basePath) throws Exception {
 
-    @Value("${zookeeper.port}")
-    private int serverPort;
+        if (serviceName == null || serviceName.isEmpty()) {
+            throw new IllegalArgumentException("Service name cannot be null or empty.");
+        }
+        if (basePath == null || basePath.isEmpty()) {
+            throw new IllegalArgumentException("Base path cannot be null or empty.");
+        }
+        if (serviceHost == null || serviceHost.isEmpty()) {
+            throw new IllegalArgumentException("Service host cannot be null or empty.");
+        }
 
-    @Value("${product.service.name}")
-    private String serviceName;
+        this.serviceName = serviceName;
+        this.serviceHost = serviceHost;
+        this.servicePort = servicePort;
+        this.basePath = basePath;
 
-    public ZookeeperServiceRegistry(CuratorFramework curatorFramework) throws Exception {
+        ServiceInstance<String> instance = ServiceInstance.<String>builder()
+                .name(serviceName)
+                .address(serviceHost)
+                .port(servicePort)
+                .build();
+
         JsonInstanceSerializer<String> serializer = new JsonInstanceSerializer<>(String.class);
         this.serviceDiscovery = ServiceDiscoveryBuilder.builder(String.class)
-                .client(curatorFramework)
-                .basePath("/services")
+                .client(client)
+                .basePath(basePath)
                 .serializer(serializer)
+                .thisInstance(instance)
                 .build();
-        serviceDiscovery.start();
     }
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void registerOnStartup() {
+    public void registerService() throws Exception {
+        ServiceInstance<String> instance = ServiceInstance.<String>builder()
+                .name(serviceName)
+                .address(serviceHost)
+                .port(servicePort)
+                .build();
+
+        serviceDiscovery.registerService(instance);
+        System.out.printf("Service '%s' registered successfully at %s:%d%n", serviceName, serviceHost, servicePort);
+    }
+
+    @PostConstruct
+    public void start() {
         try {
-            registerService(serviceName, serverHost, serverPort);
-            System.out.printf("Service '%s' registered successfully at %s:%d%n", serviceName, serverHost, serverPort);
+            serviceDiscovery.start();
+            System.out.println("Zookeeper service discovery started successfully.");
         } catch (Exception e) {
+            System.err.println("Error starting Zookeeper service discovery: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }
 
-    public void registerService(String serviceName, String serverHost, int serverPort) throws Exception {
-        ServiceInstance<String> instance = ServiceInstance.<String>builder()
-                .name(serviceName)
-                .address(serverHost)
-                .port(serverPort)
-                .build();
-        serviceDiscovery.registerService(instance);
-    }
-
-    @Override
-    public void close() throws IOException {
-        serviceDiscovery.close();
+    @PreDestroy
+    public void close() {
+        try {
+            serviceDiscovery.close();
+            System.out.println("Zookeeper service discovery closed successfully.");
+        } catch (IOException e) {
+            System.err.println("Error closing Zookeeper service discovery: " + e.getMessage());
+        }
     }
 }

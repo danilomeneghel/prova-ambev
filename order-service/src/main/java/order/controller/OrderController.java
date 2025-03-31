@@ -40,12 +40,13 @@ public class OrderController {
                 String serviceUrl = serviceDiscovery.discoverServiceUrl() + "/product";
                 RestTemplate restTemplate = new RestTemplate();
                 List<ProductDTO> products = List.of(restTemplate.getForObject(serviceUrl, ProductDTO[].class));
+                System.out.println("Products: " + products);
                 if (!products.isEmpty()) {
                     orderCreateDTO.setProducts(products);
                 }
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Failed to retrieve products.");
+            System.out.println("Failed to retrieve products: " + e.getMessage());
         }
         orderProducer.sendMessage(orderCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(orderCreateDTO);
