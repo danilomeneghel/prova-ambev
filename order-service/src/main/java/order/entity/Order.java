@@ -32,7 +32,7 @@ public class Order {
 
     private Double totalValue;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
         name = "orders_products",
         joinColumns = @JoinColumn(name = "order_id"),
