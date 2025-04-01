@@ -22,7 +22,7 @@ public class Order {
     @Column(nullable = false, unique = true)
     private Long orderNumber;
     
-    @NotNull(message = "Date cannot be null")
+    @NotNull
     @Column(nullable = false)
     private LocalDate date = LocalDate.now(); 
     
@@ -32,7 +32,7 @@ public class Order {
 
     private Double totalValue;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
         name = "orders_products",
         joinColumns = @JoinColumn(name = "order_id"),

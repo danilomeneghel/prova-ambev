@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
 import order.dto.OrderFilterDTO;
-import order.dto.ProductDTO;
+import order.dto.ProductCreateDTO;
 import order.entity.Order;
 import order.entity.Product;
 import order.repository.OrderRepository;
@@ -35,19 +35,21 @@ public class OrderService {
         Order order = modelMapper.map(orderCreateDTO, Order.class);
         double totalValue = 0;
         List<Product> products = new ArrayList<>();
-        for (ProductDTO productDTO : orderCreateDTO.getProducts()) {
-            Product product = modelMapper.map(productDTO, Product.class);
-            if (!productRepository.existsByProductNumber(product.getProductNumber())) {
-                product = productRepository.save(product);
-            } else {
-                product = productRepository.findByProductNumber(productDTO.getProductNumber()).orElse(null);
+
+        for (ProductCreateDTO productCreateDTO : orderCreateDTO.getProducts()) {
+            Product product = productRepository.findByProductNumber(productCreateDTO.getProductNumber())
+                                               .orElseGet(() -> productRepository.save(modelMapper.map(productCreateDTO, Product.class)));
+
+            if (!products.contains(product)) {
+                products.add(product);
+                totalValue += product.getPrice();
             }
-            products.add(product);
-            totalValue += product.getPrice();
         }
+
         order.setProducts(products);
         order.setTotalValue(totalValue);
         order = orderRepository.save(order);
+
         return modelMapper.map(order, OrderDTO.class);
     }
 
@@ -69,24 +71,25 @@ public class OrderService {
 
     @Transactional
     public OrderDTO updateOrder(Long id, OrderCreateDTO orderCreateDTO) {
-        Optional<Order> optionalOrder = orderRepository.findById(id);
-        if (optionalOrder.isPresent()) {
-            Order order = optionalOrder.get();
+        Order order = orderRepository.findById(id).orElse(null);
+        if (order != null) {
             double totalValue = 0;
             List<Product> products = new ArrayList<>();
-            for (ProductDTO productDTO : orderCreateDTO.getProducts()) {
-                Product product = modelMapper.map(productDTO, Product.class);
-                if (product.getId() == null) {
-                    product = productRepository.save(product);
-                } else {
-                    product = productRepository.findById(product.getId()).orElse(product);
+
+            for (ProductCreateDTO productCreateDTO : orderCreateDTO.getProducts()) {
+                Product product = productRepository.findByProductNumber(productCreateDTO.getProductNumber())
+                                                   .orElseGet(() -> productRepository.save(modelMapper.map(productCreateDTO, Product.class)));
+
+                if (!products.contains(product)) {
+                    products.add(product);
+                    totalValue += product.getPrice();
                 }
-                products.add(product);
-                totalValue += product.getPrice();
             }
+
             order.setProducts(products);
             order.setTotalValue(totalValue);
             order = orderRepository.save(order);
+
             return modelMapper.map(order, OrderDTO.class);
         }
         return null;
@@ -99,5 +102,4 @@ public class OrderService {
     public boolean isOrderNumberExists(Long orderNumber) {
         return orderRepository.existsByOrderNumber(orderNumber);
     }
-
 }

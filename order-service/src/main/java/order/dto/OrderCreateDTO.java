@@ -15,6 +15,6 @@ public class OrderCreateDTO {
     
     private String status;
 
-    private List<ProductDTO> products = new ArrayList<>(); 
+    private List<ProductCreateDTO> products = new ArrayList<>(); 
     
 }

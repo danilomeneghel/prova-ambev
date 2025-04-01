@@ -2,7 +2,6 @@ package order.controller;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +12,7 @@ import order.discovery.ZookeeperServiceDiscovery;
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
 import order.dto.OrderFilterDTO;
-import order.dto.ProductDTO;
+import order.dto.ProductCreateDTO;
 import order.message.OrderProducer;
 import order.service.OrderService;
 
@@ -39,7 +38,7 @@ public class OrderController {
             if (orderCreateDTO.getProducts().isEmpty()) {
                 String serviceUrl = serviceDiscovery.discoverServiceUrl() + "/product";
                 RestTemplate restTemplate = new RestTemplate();
-                List<ProductDTO> products = List.of(restTemplate.getForObject(serviceUrl, ProductDTO[].class));
+                List<ProductCreateDTO> products = List.of(restTemplate.getForObject(serviceUrl, ProductCreateDTO[].class));
                 System.out.println("Products: " + products);
                 if (!products.isEmpty()) {
                     orderCreateDTO.setProducts(products);
