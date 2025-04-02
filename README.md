@@ -7,7 +7,8 @@ Avaliação técnica de uma API de Cadastro de Pedidos, desenvolvido em Java com
 
 - API RESTful
 - Validation
-- MessageQueue
+- Service Registry
+- Message Queue
 - MockMVC
 
 
