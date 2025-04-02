@@ -10,7 +10,7 @@ Avaliação técnica de uma API de Cadastro de Pedidos, desenvolvido em Java com
 - Service Registry
 - Message Queue
 - MockMVC
-
+- Clean Code
 
 ## Requisitos
 
@@ -34,6 +34,7 @@ Avaliação técnica de uma API de Cadastro de Pedidos, desenvolvido em Java com
 - JSON
 - MySql
 - JUnit
+- Zookeeper
 - Kafka
 - Docker
 
