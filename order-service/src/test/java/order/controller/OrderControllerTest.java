@@ -1,139 +1,124 @@
 package order.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import order.dto.OrderCreateDTO;
+import order.dto.OrderDTO;
+import order.dto.OrderFilterDTO;
+import order.service.OrderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import order.dto.OrderCreateDTO;
-import order.dto.OrderDTO;
-import order.dto.OrderFilterDTO;
-import order.message.OrderProducer;
-import order.service.OrderService;
+import java.util.List;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class OrderControllerTest {
+class OrderControllerTest {
 
     @Mock
     private OrderService orderService;
 
-    @Mock
-    private OrderProducer orderProducer;
-
     @InjectMocks
     private OrderController orderController;
 
+    private OrderCreateDTO orderCreateDTO;
+    private OrderDTO orderDTO;
+
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-        MockMvcBuilders.standaloneSetup(orderController).build();
-    }
-    
-    /*@Test
-    public void testCreateOrder() {
-        OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
-        orderCreateDTO.setOrderNumber(123L);
+    void setup() {
+        orderCreateDTO = new OrderCreateDTO();
+        orderCreateDTO.setOrderNumber(12345L); 
 
-        when(orderService.isOrderNumberExists(any(Long.class))).thenReturn(false);
+        orderDTO = new OrderDTO();
+        orderDTO.setId(1L);
+        orderDTO.setOrderNumber(12345L); 
+    }
+
+    @Test
+    void shouldCreateOrderSuccessfully() {
+        when(orderService.isOrderNumberExists(orderCreateDTO.getOrderNumber())).thenReturn(false);
 
         ResponseEntity<Object> response = orderController.createOrder(orderCreateDTO);
 
-        verify(orderProducer, times(1)).sendMessage(any(OrderCreateDTO.class));
-        assert response.getStatusCode() == HttpStatus.CREATED;
-        assert Objects.equals(response.getBody(), orderCreateDTO);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(orderCreateDTO, response.getBody());
+        verify(orderService, times(1)).sendOrder(orderCreateDTO);
     }
 
     @Test
-    public void testCreateOrder_OrderNumberExists() {
-        OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
-        orderCreateDTO.setOrderNumber(123L);
-
-        when(orderService.isOrderNumberExists(any(Long.class))).thenReturn(true);
+    void shouldReturnConflictWhenOrderAlreadyExists() {
+        when(orderService.isOrderNumberExists(orderCreateDTO.getOrderNumber())).thenReturn(true);
 
         ResponseEntity<Object> response = orderController.createOrder(orderCreateDTO);
 
-        assert response.getStatusCode() == HttpStatus.CONFLICT;
-        assert response.getBody() != null;
-        assert "Order Number already exists".equals(response.getBody());
-    }*/
-
-    @Test
-    public void testGetOrderById() {
-        Long orderId = 1L;
-        OrderDTO orderDTO = new OrderDTO();
-
-        when(orderService.getOrderById(orderId)).thenReturn(orderDTO);
-
-        ResponseEntity<OrderDTO> response = orderController.getOrderById(orderId);
-
-        assert response.getStatusCode() == HttpStatus.OK;
-        assert response.getBody() != null;
-        assert orderDTO.equals(response.getBody());
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals("Order Number already exists", response.getBody());
+        verify(orderService, never()).sendOrder(any());
     }
 
     @Test
-    public void testFilterOrders() {
-        OrderFilterDTO orderFilterDTO = new OrderFilterDTO();
-        List<OrderFilterDTO> filteredOrders = Arrays.asList(new OrderFilterDTO(), new OrderFilterDTO());
+    void shouldReturnOrderByIdSuccessfully() {
+        when(orderService.existsById(1L)).thenReturn(true);
+        when(orderService.getOrderById(1L)).thenReturn(orderDTO);
 
-        when(orderService.filterOrders(any(OrderFilterDTO.class))).thenReturn(filteredOrders);
+        ResponseEntity<Object> response = orderController.getOrderById(1L);
 
-        ResponseEntity<List<OrderFilterDTO>> response = orderController.filterOrders(orderFilterDTO);
-
-        assert response.getStatusCode() == HttpStatus.OK;
-        assert response.getBody() != null;
-        assert filteredOrders.equals(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(orderDTO, response.getBody());
     }
 
     @Test
-    public void testGetAllOrders() {
-        List<OrderDTO> orders = Arrays.asList(new OrderDTO(), new OrderDTO());
+    void shouldReturnNotFoundWhenOrderDoesNotExist() {
+        when(orderService.existsById(1L)).thenReturn(false);
 
-        when(orderService.getAllOrders()).thenReturn(orders);
+        ResponseEntity<Object> response = orderController.getOrderById(1L);
 
-        ResponseEntity<List<OrderDTO>> response = orderController.getAllOrders();
-
-        assert response.getStatusCode() == HttpStatus.OK;
-        assert response.getBody() != null;
-        assert orders.equals(response.getBody());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("Order not found", response.getBody());
     }
 
     @Test
-    public void testUpdateOrder() {
-        Long orderId = 1L;
-        OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
-        OrderDTO updatedOrder = new OrderDTO();
+    void shouldUpdateOrderSuccessfully() {
+        when(orderService.existsById(1L)).thenReturn(true);
+        when(orderService.updateOrder(eq(1L), any())).thenReturn(orderDTO);
 
-        when(orderService.updateOrder(eq(orderId), any(OrderCreateDTO.class))).thenReturn(updatedOrder);
+        ResponseEntity<Object> response = orderController.updateOrder(1L, orderCreateDTO);
 
-        ResponseEntity<OrderDTO> response = orderController.updateOrder(orderId, orderCreateDTO);
-
-        assert response.getStatusCode() == HttpStatus.OK;
-        assert response.getBody() != null;
-        assert updatedOrder.equals(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(orderDTO, response.getBody());
     }
 
     @Test
-    public void testDeleteOrder() {
-        Long orderId = 1L;
+    void shouldReturnNotFoundWhenUpdatingNonExistingOrder() {
+        when(orderService.existsById(1L)).thenReturn(false);
 
-        doNothing().when(orderService).deleteOrder(orderId);
+        ResponseEntity<Object> response = orderController.updateOrder(1L, orderCreateDTO);
 
-        ResponseEntity<Void> response = orderController.deleteOrder(orderId);
-
-        assert response.getStatusCode() == HttpStatus.NO_CONTENT;
-        verify(orderService, times(1)).deleteOrder(orderId);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("Order not found", response.getBody());
     }
-    
+
+    @Test
+    void shouldDeleteOrderSuccessfully() {
+        when(orderService.existsById(1L)).thenReturn(true);
+
+        ResponseEntity<Object> response = orderController.deleteOrder(1L);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(orderService, times(1)).deleteOrder(1L);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenDeletingNonExistingOrder() {
+        when(orderService.existsById(1L)).thenReturn(false);
+
+        ResponseEntity<Object> response = orderController.deleteOrder(1L);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("Order not found", response.getBody());
+    }
 }

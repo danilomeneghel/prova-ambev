@@ -42,16 +42,20 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
-        Product product = modelMapper.map(productDTO, Product.class);
+    public ProductCreateDTO updateProduct(Long id, ProductCreateDTO productCreateDTO) {
+        Product product = modelMapper.map(productCreateDTO, Product.class);
         product.setId(id);
-        return modelMapper.map(productRepository.save(product), ProductDTO.class);
+        return modelMapper.map(productRepository.save(product), ProductCreateDTO.class);
     }
 
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }
 
+    public boolean existsById(Long id) {
+        return productRepository.existsById(id);
+    }
+    
     public boolean isProductNumberExists(Long productNumber) {
         return productRepository.existsByProductNumber(productNumber);
     }

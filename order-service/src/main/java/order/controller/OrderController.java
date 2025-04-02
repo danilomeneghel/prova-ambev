@@ -5,15 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import jakarta.validation.Valid;
-import order.discovery.ZookeeperServiceDiscovery;
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
 import order.dto.OrderFilterDTO;
 import order.dto.ProductCreateDTO;
-import order.message.OrderProducer;
 import order.service.OrderService;
 
 @RestController
@@ -23,36 +20,20 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @Autowired
-    private OrderProducer orderProducer;
-
-    @Autowired
-    private ZookeeperServiceDiscovery serviceDiscovery;
-
     @PostMapping
     public ResponseEntity<Object> createOrder(@Valid @RequestBody OrderCreateDTO orderCreateDTO) {
         if (orderService.isOrderNumberExists(orderCreateDTO.getOrderNumber())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Order Number already exists");
         }
-        try {
-            if (orderCreateDTO.getProducts().isEmpty()) {
-                String serviceUrl = serviceDiscovery.discoverServiceUrl() + "/product";
-                RestTemplate restTemplate = new RestTemplate();
-                List<ProductCreateDTO> products = List.of(restTemplate.getForObject(serviceUrl, ProductCreateDTO[].class));
-                System.out.println("Products: " + products);
-                if (!products.isEmpty()) {
-                    orderCreateDTO.setProducts(products);
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Failed to retrieve products: " + e.getMessage());
-        }
-        orderProducer.sendMessage(orderCreateDTO);
+        orderService.sendOrder(orderCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(orderCreateDTO);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
+    public ResponseEntity<Object> getOrderById(@PathVariable Long id) {
+        if (!orderService.existsById(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
         OrderDTO order = orderService.getOrderById(id);
         return ResponseEntity.status(HttpStatus.OK).body(order);
     }
@@ -70,15 +51,21 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody OrderCreateDTO orderCreateDTO) {
+    public ResponseEntity<Object> updateOrder(@PathVariable Long id, @RequestBody OrderCreateDTO orderCreateDTO) {
+        if (!orderService.existsById(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
         OrderDTO updatedOrder = orderService.updateOrder(id, orderCreateDTO);
         return ResponseEntity.status(HttpStatus.OK).body(updatedOrder);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+    public ResponseEntity<Object> deleteOrder(@PathVariable Long id) {
+        if (!orderService.existsById(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
         orderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
     }
-
+    
 }

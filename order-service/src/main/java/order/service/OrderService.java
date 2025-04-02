@@ -9,6 +9,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+
+import order.discovery.ZookeeperServiceDiscovery;
 
 import order.dto.OrderCreateDTO;
 import order.dto.OrderDTO;
@@ -18,6 +21,7 @@ import order.entity.Order;
 import order.entity.Product;
 import order.repository.OrderRepository;
 import order.repository.ProductRepository;
+import order.message.OrderProducer;
 
 @Service
 public class OrderService {
@@ -28,7 +32,30 @@ public class OrderService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private OrderProducer orderProducer;
+
+    @Autowired
+    private ZookeeperServiceDiscovery serviceDiscovery;
+
     private ModelMapper modelMapper = new ModelMapper();
+
+    public void sendOrder(OrderCreateDTO orderCreateDTO) {
+        try {
+            if (orderCreateDTO.getProducts().isEmpty()) {
+                String serviceUrl = serviceDiscovery.discoverServiceUrl("product-service") + "/product";
+                RestTemplate restTemplate = new RestTemplate();
+                List<ProductCreateDTO> products = List.of(restTemplate.getForObject(serviceUrl, ProductCreateDTO[].class));
+                System.out.println("Products: " + products);
+                if (!products.isEmpty()) {
+                    orderCreateDTO.setProducts(products);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Failed to retrieve products: " + e.getMessage());
+        }
+        orderProducer.sendMessage(orderCreateDTO);
+    }
 
     @Transactional
     public OrderDTO createOrder(OrderCreateDTO orderCreateDTO) {
@@ -99,7 +126,12 @@ public class OrderService {
         orderRepository.deleteById(id);
     }
 
+    public boolean existsById(Long id) {
+        return orderRepository.existsById(id);
+    }
+
     public boolean isOrderNumberExists(Long orderNumber) {
         return orderRepository.existsByOrderNumber(orderNumber);
     }
+    
 }
