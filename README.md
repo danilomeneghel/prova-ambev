@@ -8,6 +8,7 @@ Avaliação técnica de uma API de Cadastro de Pedidos, desenvolvido em Java com
 - API RESTful
 - Validation
 - Service Registry
+- Service Discovery
 - Message Queue
 - MockMVC
 - Clean Code
@@ -53,29 +54,47 @@ $ cd prova-ambev
 Abra seu MySql e crie as 2 bases de dados:
 
 order_db <br>
-product_db
+product_db<br>
 
-
-## Kafka
-
-Primeiro rode o Kafka.<br>
-Caso não tenha o Kafka instalado, execute o seguinte comando via Docker:
+Caso não tenha o MySql 8 instalado, execute o seguinte comando Docker:
 
 ```
-docker network create app-tier --driver bridge
-docker run -d --name zookeeper-server --network app-tier -e ALLOW_ANONYMOUS_LOGIN=yes bitnami/zookeeper:3.8.0
-docker run -d --name kafka-server --network app-tier -p 9092:9092 -e ALLOW_PLAINTEXT_LISTENER=yes -e KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-server:2181 -e KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092 -e KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092 bitnami/kafka:3.3.2
-docker run -it --rm --network app-tier -e KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-server:2181 bitnami/kafka:3.3.2 kafka-topics.sh --list --bootstrap-server kafka-server:9092
+docker network create app_network
+
+sudo docker run \
+  --name mysql_ambev \
+  --network app_network \
+  -p 3306:3306 \
+  -v /mysql/files/mysql-data:/var/lib/mysql \
+  -e MYSQL_ROOT_PASSWORD=secret \
+  -e MYSQL_DATABASE=order_db \
+  -d mysql:8
+
+docker exec -it mysql_ambev sh \
+  -c "MYSQL_PWD=secret mysql -u root \
+  -e 'CREATE DATABASE IF NOT EXISTS product_db;'"
 ```
 
 
 ## Zookeeper
 
+Rode o Zookeeper.<br>
+Caso não tenha o Zookeeper instalado, execute o seguinte comando Docker:
+
+```
+docker run -d \
+  --name zookeeper_ambev \
+  --network app_network \
+  -p 2181:2181 \
+  -e ALLOW_ANONYMOUS_LOGIN=yes \
+  bitnami/zookeeper:3.8.0
+```
+
 Para verificar os serviços registrados dentro do container Zookeeper, utilize o comando:
 
 ```
 docker exec -it zookeeper_ambev /bin/bash
-/opt/bitnami/zookeeper/bin/zkCli.sh
+zkCli.sh
 ls /services
 ```
 
@@ -91,13 +110,32 @@ get /services/product-service/25626c1b-8678-4cfd-a3a8-d5538976b1cd
 ```
 
 
+## Kafka
+
+Rode o Kafka.<br>
+Caso não tenha o Kafka instalado, execute o seguinte comando Docker:
+
+```
+docker run -d \
+  --name kafka_ambev \
+  --network app_network \
+  -p 9092:9092 \
+  -e KAFKA_BROKER_ID=1 \
+  -e KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper_ambev:2181 \
+  -e KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092 \
+  -e KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
+  -e ALLOW_PLAINTEXT_LISTENER=yes \
+  bitnami/kafka:3.3.2
+```
+
+
 ## Maven
 
 Para carregar o projeto, digite no terminal:
 
 ```
-$ cd order-service
-$ mvn clean spring-boot:run -Dspring-boot.run.profiles=dev
+cd order-service
+mvn clean spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 Aguarde carregar todo o serviço web. <br>
@@ -107,8 +145,8 @@ http://localhost:8080/order <br>
 
 
 ```
-$ cd product-service
-$ mvn clean spring-boot:run -Dspring-boot.run.profiles=dev
+cd product-service
+mvn clean spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 Aguarde carregar todo o serviço web. <br>
@@ -122,7 +160,7 @@ http://localhost:8081/product <br>
 Para rodar o projeto via Docker, bastar executar o seguinte comando:
 
 ```
-$ docker compose up
+docker compose up
 ```
 
 Aguarde baixar as dependências e carregar todo o projeto, esse processo é demorado. <br>
@@ -131,7 +169,7 @@ Caso conclua e não rode pela primeira vez, tente novamente executando o mesmo c
 Para encerrar tudo digite:
 
 ```
-$ docker compose down
+docker compose down
 ```
 
 
@@ -147,8 +185,8 @@ http://localhost:8080/swagger-ui.html
 Para realizar os testes, execute o seguinte comando no terminal:
 
 ```
-$ cd order-service
-$ mvn test
+cd order-service
+mvn test
 ```
 
 

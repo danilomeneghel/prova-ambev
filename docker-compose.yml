@@ -4,7 +4,6 @@ services:
   zookeeper:
     image: 'bitnami/zookeeper:3.8.0'
     container_name: 'zookeeper_ambev'
-    hostname: 'zookeeper'
     ports:
       - '2181:2181'
     environment:
@@ -15,7 +14,6 @@ services:
   kafka:
     image: 'bitnami/kafka:3.3.2'
     container_name: 'kafka_ambev'
-    hostname: 'kafka'
     ports:
       - '9092:9092'
     environment:
@@ -30,17 +28,23 @@ services:
   mysql:
     container_name: mysql_ambev
     image: mysql:8.4.2
-    hostname: mysql
     restart: always
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: prova_ambev
       MYSQL_ROOT_PASSWORD: secret
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psecret"]
+      interval: 10s
+      retries: 10
+      start_period: 40s
+      timeout: 5s
+    command: >
+      bash -c "docker-entrypoint.sh mysqld & sleep 5 && mysql -u root -p$${MYSQL_ROOT_PASSWORD} -e 'CREATE DATABASE IF NOT EXISTS order_db; CREATE DATABASE IF NOT EXISTS product_db;' && wait"
 
   order_service:
     container_name: order_service
