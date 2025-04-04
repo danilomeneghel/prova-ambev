@@ -43,9 +43,9 @@ Avaliação técnica de uma API de Cadastro de Pedidos, desenvolvido em Java com
 ## Instalação
 
 ```
-$ git clone https://github.com/danilomeneghel/prova-ambev.git
+git clone https://github.com/danilomeneghel/prova-ambev.git
 
-$ cd prova-ambev
+cd prova-ambev
 ```
 
 
