@@ -71,7 +71,10 @@ sudo docker run \
   -e POSTGRES_DB=order_db \
   -d postgres:16
 
-docker exec -it postgres_ambev psql -U root -c "CREATE DATABASE product_db;"
+until docker exec -it postgres_ambev pg_isready -U root; do sleep 2; done
+
+docker exec -it postgres_ambev psql -U root -d postgres -qAt -c "SELECT 1 FROM pg_database WHERE datname = 'product_db';" | grep -q 1 || \
+docker exec -it postgres_ambev psql -U root -d postgres -c "CREATE DATABASE product_db;"
 ```
 
 
