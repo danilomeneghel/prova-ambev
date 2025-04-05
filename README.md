@@ -17,7 +17,7 @@ Avaliação técnica de uma API de Cadastro de Pedidos, desenvolvido em Java com
 
 - Java JDK 21
 - Apache Maven >= 3.9.8
-- MySql 8
+- PostgreSql 16
 - Zookeeper 3.8.0
 - Kafka 3.3.2
 - Docker (Opcional)
@@ -49,30 +49,29 @@ cd prova-ambev
 ```
 
 
-## MySql
+## PostgreSql
 
-Abra seu MySql e crie as 2 bases de dados:
+Abra seu PostgreSql e crie as 2 bases de dados:
 
 order_db <br>
 product_db<br>
 
-Caso não tenha o MySql 8 instalado, execute o seguinte comando Docker:
+Caso não tenha o PostgreSql 16 instalado, execute o seguinte comando Docker:
 
 ```
 docker network create app_network
 
 sudo docker run \
-  --name mysql_ambev \
+  --name postgres_ambev \
   --network app_network \
-  -p 3306:3306 \
-  -v /mysql/files/mysql-data:/var/lib/mysql \
-  -e MYSQL_ROOT_PASSWORD=secret \
-  -e MYSQL_DATABASE=order_db \
-  -d mysql:8
+  -p 5432:5432 \
+  -v /postgres/files/postgres-data:/var/lib/postgresql/data \
+  -e POSTGRES_USER=root \
+  -e POSTGRES_PASSWORD=secret \
+  -e POSTGRES_DB=order_db \
+  -d postgres:16
 
-docker exec -it mysql_ambev sh \
-  -c "MYSQL_PWD=secret mysql -u root \
-  -e 'CREATE DATABASE IF NOT EXISTS product_db;'"
+docker exec -it postgres_ambev psql -U root -c "CREATE DATABASE product_db;"
 ```
 
 
@@ -153,6 +152,23 @@ Aguarde carregar todo o serviço web. <br>
 Após concluído, digite o endereço abaixo em seu navegador: <br>
 
 http://localhost:8081/product <br>
+
+
+## Spring Actuator
+
+Para listar os endpoints habilitados, acesse o seguinte endereço:
+
+http://localhost:8080/actuator <br>
+
+
+Para verificar o status da aplicação, acesse o endereço:
+
+http://localhost:8080/actuator/health <br>
+
+
+Para verificar as informações do ambiente, acesse o endereço:
+
+http://localhost:8080/actuator/env <br>
 
 
 ## Docker (Opcional)
