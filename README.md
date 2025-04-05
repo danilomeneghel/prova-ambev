@@ -33,7 +33,7 @@ Avaliação técnica de uma API de Cadastro de Pedidos, desenvolvido em Java com
 - Lombok
 - Jakarta
 - JSON
-- MySql
+- PostgreSql
 - JUnit
 - Zookeeper
 - Kafka
